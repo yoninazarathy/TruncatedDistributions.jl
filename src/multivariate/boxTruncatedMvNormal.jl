@@ -1,7 +1,7 @@
 const max_moment_levels = 2 #Just for mean and covariance matrix
 const Children = Union{Vector{Vector{Int}},Nothing}
 
-mutable struct BoxTruncatedMvNormal
+mutable struct BoxTruncatedMvNormal <: AbstractBoxTruncatedMvNormal
     μₑ::Vector{Float64}     #mean parameter (of non-truncated form)
     Σₑ::Matrix{Float64}     #covariance parameter of non-truncated form)
     a::Vector{Float64}      #lower bounding box coordinates
