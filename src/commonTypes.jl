@@ -1,10 +1,77 @@
-abstract type Truncation end
-abstract type BoxTruncation <: Truncation end
-abstract type EllipticalTruncation <: Truncation end
-abstract type TruncatedMultivariateDistribution{T} <: ContinuousMultivariateDistribution where T<:Truncation end
+"
+A truncation region defines a subset of space to which the distribution is truncated. The basic operation supported is `intruncationregion()`, which returns true if a vector is inside the truncation region.
+"
+abstract type TruncationRegion end
 
-const BoxTruncatedMultivariateDistribution = TruncatedMultivariateDistribution{BoxTruncation}
-const EllipsoidTruncatedMultivariateDistribution = TruncatedMultivariateDistribution{EllipticalTruncation}
+"
+A state abstract object representing computed quantities of a truncated multivariate distribution.
 
-abstract type AbstractBoxTruncatedMvNormal <: BoxTruncatedMultivariateDistribution end
-abstract type AbstractEllipsoidTruncatedMvNormal <: BoxTruncatedMultivariateDistribution end
+Every concrete subtype should expose at least the following two fields.
+
+- `n::Int` The length of the distribution
+- `tp::Float64` The probability of falling in the truncation region for the non-truncated case.
+- `tp_err::Float64` An estimate of the absolute error of the probability `tp`.
+
+Other subtypes may expose.
+
+- `μ::Vector{Float64}` The mean vector.
+- `μ_err::Float64` An estimate of the relative error for the mean vector.
+- `Σ::Matrix{Float64}` The covariance matrix.
+- `Σ_err::Float64` An estimate of the relative error for the covariance matrix.
+
+Further subtypes may expose.
+- `moment_dict::Dict{Vector{Int},Float64}` A dictionary mapping multivariate moment vectors to estimate quantities.
+- `prob_dict` A dictionary mapping probability vectors to estimated quantities. 
+"
+abstract type TruncatedMvDistributionState end
+
+mutable struct TruncatedMvDistributionSecondOrderState <: TruncatedMvDistributionState
+    n::Int 
+    tp::Float64
+    μ::Vector{Float64}
+    Σ::Matrix{Float64}
+    tp_err::Float64
+    μ_err::Float64
+    Σ_err::Float64
+    TruncatedMvDistributionSecondOrderState(d::MultivariateDistribution) = new(     length(d),
+                                                                                    NaN,
+                                                                                    Vector{Float64}(undef,0),
+                                                                                    Matrix{Float64}(undef,0,0),
+                                                                                    Inf, Inf, Inf)
+end
+
+
+"A truncated multi-variate distribution composed of a Multivariate Distribution, Truncation Region and a State object implementing computable state."
+struct TruncatedMvDistribution{D <: MultivariateDistribution, R <: TruncationRegion, S <: TruncatedMvDistributionState} 
+    untruncated::D
+    region::R
+    state::S
+end
+
+function TruncatedMvDistribution{D,R,S}(d::D,r::R) where {D <: MultivariateDistribution, R <: TruncationRegion, S <: TruncatedMvDistributionState}
+    TruncatedMvDistribution(d,r,S(d))
+end
+
+# function Base.show(io::IO, d::BoxTruncatedMvNormalRecursiveMomentsState) 
+#     println(io, "Box Truncated MvNormal")
+#     println(io, "n = $(d.n)")
+#     println(io, "μₑ = $(d.μₑ)" )
+#     println(io, "Σₑ = $(d.Σₑ)" )
+#     println(io, "α = $(alpha(d))")
+#     println("Limits:")
+    
+#     for i in 1:d.n
+#         println(io, "$i:\t ",(d.a[i],d.b[i]))
+#     end
+    
+#     if d.momentsComputed
+#         println("Moments:")
+#         for k in keys(d.momentDict)
+#             println(io, k, "\t", moment(d,k))
+#         end
+#         println(io,"mean:", mean(d))
+#         println(io,"cov:", cov(d))
+#     else
+#         println("Moments not computed")
+#     end
+# end
