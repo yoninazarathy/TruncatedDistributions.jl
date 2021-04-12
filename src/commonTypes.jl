@@ -16,7 +16,7 @@ Other subtypes may expose.
 
 - `μ::Vector{Float64}` The mean vector.
 - `μ_err::Float64` An estimate of the relative error for the mean vector.
-- `Σ::Matrix{Float64}` The covariance matrix.
+- `Σ::PDMat` The covariance matrix.
 - `Σ_err::Float64` An estimate of the relative error for the covariance matrix.
 
 Further subtypes may expose.
@@ -29,14 +29,14 @@ mutable struct TruncatedMvDistributionSecondOrderState <: TruncatedMvDistributio
     n::Int 
     tp::Float64
     μ::Vector{Float64}
-    Σ::Matrix{Float64}
+    Σ::PDMat
     tp_err::Float64
     μ_err::Float64
     Σ_err::Float64
     TruncatedMvDistributionSecondOrderState(d::MultivariateDistribution) = new(     length(d),
                                                                                     NaN,
                                                                                     Vector{Float64}(undef,0),
-                                                                                    Matrix{Float64}(undef,0,0),
+                                                                                    PDMat(Array{Float64,2}(I,length(d),length(d))),
                                                                                     Inf, Inf, Inf)
 end
 
@@ -51,6 +51,21 @@ end
 function TruncatedMvDistribution{D,R,S}(d::D,r::R) where {D <: MultivariateDistribution, R <: TruncationRegion, S <: TruncatedMvDistributionState}
     TruncatedMvDistribution(d,r,S(d))
 end
+
+# function tp(d::TruncatedMvDistribution{D,R,TruncatedMvDistributionSecondOrderState}) 
+#     where {D <: MultivariateDistribution, R <: TruncationRegion}
+#     (d.state.tp, d.state.tp_err)
+# end
+
+# function mean(d::TruncatedMvDistribution{D,R,S}) where {D <: MultivariateDistribution, R <: TruncationRegion, S <: TruncatedMvDistributionState}
+#     (d.state.μ, d.state.μ_err)
+# end
+
+# function cov(d::TruncatedMvDistribution{D,R,S}) where {D <: MultivariateDistribution, R <: TruncationRegion, S <: TruncatedMvDistributionState}
+#     (d.s)
+# end
+
+    # function moment(d::TruncatedMvDistribution{D,R,S}, k::Vector{Int}) where {D <: MultivariateDistribution, R <: TruncationRegion, S <: TruncatedMvDistributionState}
 
 # function Base.show(io::IO, d::BoxTruncatedMvNormalRecursiveMomentsState) 
 #     println(io, "Box Truncated MvNormal")

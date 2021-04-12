@@ -19,7 +19,7 @@ mutable struct BoxTruncatedMvNormalRecursiveMomentsState <: TruncatedMvDistribut
 
     tp::Float64
     μ::Vector{Float64}
-    Σ::Matrix{Float64}
+    Σ::PDMat
     tp_err::Float64
     μ_err::Float64
     Σ_err::Float64
@@ -54,7 +54,7 @@ mutable struct BoxTruncatedMvNormalRecursiveMomentsState <: TruncatedMvDistribut
         new(d,r,n,max_moment_levels,children_a,children_b,rawMomentDict,treeDict,false,
             NaN,
             Vector{Float64}(undef,0),
-            Matrix{Float64}(undef,0,0),
+            PDMat(Array{Float64,2}(I,n,n)),
             Inf, Inf, Inf)
     end
 end

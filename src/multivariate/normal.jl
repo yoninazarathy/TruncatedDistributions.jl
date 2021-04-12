@@ -4,7 +4,7 @@ A Box Truncated normal distribution with a naive implementation and representati
 const BasicBoxTruncatedMvNormal = TruncatedMvDistribution{MvNormal,BoxTruncationRegion,TruncatedMvDistributionSecondOrderState}
 
 function BasicBoxTruncatedMvNormal( μₑ::Vector{Float64},
-                                    Σₑ::Matrix{Float64}, 
+                                    Σₑ::PDMat, 
                                     a::Vector{Float64}, 
                                     b::Vector{Float64})
     d = MvNormal(μₑ,Σₑ)
@@ -12,14 +12,13 @@ function BasicBoxTruncatedMvNormal( μₑ::Vector{Float64},
     TruncatedMvDistribution{MvNormal,BoxTruncationRegion,TruncatedMvDistributionSecondOrderState}(d,r)
 end
 
-
 "
 A Box Truncated normal distribution with a recursive moment computation implementation.
 "
 const RecursiveMomentsBoxTruncatedMvNormal = TruncatedMvDistribution{MvNormal,BoxTruncationRegion,BoxTruncatedMvNormalRecursiveMomentsState}
 
 function RecursiveMomentsBoxTruncatedMvNormal(  μₑ::Vector{Float64},
-                                                Σₑ::Matrix{Float64}, 
+                                                Σₑ::PDMat, 
                                                 a::Vector{Float64}, 
                                                 b::Vector{Float64};
                                                 max_moment_levels::Int = 2)

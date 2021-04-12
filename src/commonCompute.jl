@@ -38,7 +38,6 @@ function compute_mean(d::TruncatedMvDistribution{D,R};
     nothing
 end
 
-
 function compute_cov(d::TruncatedMvDistribution{D,R}; 
                     tol::Float64 = 10e-4, 
                     tol_step::Int = 10^5,
@@ -48,6 +47,21 @@ function compute_cov(d::TruncatedMvDistribution{D,R};
     elseif alg == :hc
         μ = mean(d)
         d.state.Σ, d.state.Σ_err = hcubature((x)->pdf(d,x)*(x-μ)*(x-μ)',d.region.a, d.region.b)
+    else
+        error("Unknown algorithm $(alg)")
+    end
+    nothing
+end
+
+function compute_moment(d::TruncatedMvDistribution{D,R},k::Vector{Int}; 
+                        tol::Float64 = 10e-4, 
+                        tol_step::Int = 10^5,
+                        alg::Symbol = :hc) where {D,R}
+    
+    if alg == :mc
+        @error("still not implemented")
+    elseif alg == :hc
+        return hcubature((x)->pdf(d,x)*prod(x.^k),d.region.a, d.region.b)[1]
     else
         error("Unknown algorithm $(alg)")
     end

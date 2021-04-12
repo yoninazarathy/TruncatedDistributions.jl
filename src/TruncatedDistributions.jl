@@ -13,6 +13,7 @@ export
     compute_tp,
     compute_mean,
     compute_cov,
+    compute_moment,
     TruncationRegion,
     TruncatedMvDistribution,
     BoxTruncatedMvNormalRecursiveMoments,#QQQQ
