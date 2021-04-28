@@ -28,7 +28,7 @@ function test_distributions(dist_gen)
        end
 end
 
-# test_distributions(distribution_generators2)
+test_distributions(distribution_generators2)
 # test_distributions(distribution_generators3)
 # test_distributions(distribution_generators4)
 # test_distributions(distribution_generators5)
@@ -39,25 +39,25 @@ end
 # mean(dt)
 
 
-H = [1 -0.5; 
-    -0.5 1.]
+# H = [1 -0.5; 
+#     -0.5 1.]
 
-h = [.0,-0.5]
-c = 5.0
+# h = [.0,-0.5]
+# c = 5.0
 
 
-r = EllipticalTruncationRegion(PDMat(H),h,c)
+# r = EllipticalTruncationRegion(PDMat(H),h,c)
 
-x = [0.1,0.3]
-intruncationregion(r,x)
+# x = [0.1,0.3]
+# intruncationregion(r,x)
 
-points = [rand(Uniform(-5,5),2) for _ in 1:10^5]
-in_points = filter((x)->intruncationregion(r,x),points)
+# points = [rand(Uniform(-5,5),2) for _ in 1:10^5]
+# in_points = filter((x)->intruncationregion(r,x),points)
 
-dist = TruncatedMvDistribution{MvNormal,EllipticalTruncationRegion,TruncatedMvDistributionSecondOrderState}(
-       MvNormal([8.5,0],[1 0; 0 5]),
-       EllipticalTruncationRegion(PDMat(H),h,c))
+# dist = TruncatedMvDistribution{MvNormal,EllipticalTruncationRegion,TruncatedMvDistributionSecondOrderState}(
+#        MvNormal([8.5,0],[1 0; 0 5]),
+#        EllipticalTruncationRegion(PDMat(H),h,c))
 
-rand_points = [rand(dist) for _ in 1:10^3]
-scatter(first.(in_points),last.(in_points),legend=false,xlim=(-5,5),ylim=(-5,5))
-scatter!(first.(rand_points),last.(rand_points))
+# rand_points = [rand(dist) for _ in 1:10^3]
+# scatter(first.(in_points),last.(in_points),legend=false,xlim=(-5,5),ylim=(-5,5))
+# scatter!(first.(rand_points),last.(rand_points))
