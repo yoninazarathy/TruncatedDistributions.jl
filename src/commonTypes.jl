@@ -25,22 +25,6 @@ Further subtypes may expose.
 "
 abstract type TruncatedMvDistributionState end
 
-mutable struct TruncatedMvDistributionSecondOrderState <: TruncatedMvDistributionState
-    n::Int 
-    tp::Float64
-    μ::Vector{Float64}
-    Σ::PDMat
-    tp_err::Float64
-    μ_err::Float64
-    Σ_err::Float64
-    TruncatedMvDistributionSecondOrderState(d::MultivariateDistribution) = new(     length(d),
-                                                                                    NaN,
-                                                                                    Vector{Float64}(undef,0),
-                                                                                    PDMat(Array{Float64,2}(I,length(d),length(d))),
-                                                                                    Inf, Inf, Inf)
-end
-
-
 "A truncated multi-variate distribution composed of a Multivariate Distribution, Truncation Region and a State object implementing computable state."
 struct TruncatedMvDistribution{D <: MultivariateDistribution, R <: TruncationRegion, S <: TruncatedMvDistributionState} 
     untruncated::D
@@ -51,6 +35,24 @@ end
 function TruncatedMvDistribution{D,R,S}(d::D,r::R) where {D <: MultivariateDistribution, R <: TruncationRegion, S <: TruncatedMvDistributionState}
     TruncatedMvDistribution(d,r,S(d))
 end
+
+
+
+mutable struct TruncatedMvDistributionSecondOrderState <: TruncatedMvDistributionState
+    n::Int              # dimension
+    tp::Float64         # Truncation probability (probability under the truncated region)
+    μ::Vector{Float64}  # Mean vector
+    Σ::PDMat            # Covariance matrix
+    tp_err::Float64     # Estimate of the error of truncation probability
+    μ_err::Float64      # Estimate of the error of the mean vector
+    Σ_err::Float64      # Estimate of the error fo the covariance matrix
+    TruncatedMvDistributionSecondOrderState(d::MultivariateDistribution) = new(     length(d),
+                                                                                    NaN,
+                                                                                    Vector{Float64}(undef,0),
+                                                                                    PDMat(Array{Float64,2}(I,length(d),length(d))),
+                                                                                    Inf, Inf, Inf)
+end
+
 
 # function tp(d::TruncatedMvDistribution{D,R,TruncatedMvDistributionSecondOrderState}) 
 #     where {D <: MultivariateDistribution, R <: TruncationRegion}
