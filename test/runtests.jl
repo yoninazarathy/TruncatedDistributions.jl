@@ -1,6 +1,6 @@
-cd(@__DIR__)
-using Pkg; Pkg.activate("..")
-using Revise
+# cd(@__DIR__)
+# using Pkg; Pkg.activate("..")
+# using Revise
 # Pkg.precompile()
 
 using TruncatedDistributions
