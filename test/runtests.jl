@@ -8,7 +8,6 @@ using Test
 using Distributions
 using HCubature
 using PDMats
-using Plots
 
 include("exampleDists.jl")
 
