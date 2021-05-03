@@ -1,5 +1,8 @@
 # TruncatedDistributions
 
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://yoninazarathy.github.io/TruncatedDistributions.jl/dev/)
+
+
 [![Build Status](https://travis-ci.com/yoninazarathy/TruncatedDistributions.jl.svg?branch=master)](https://travis-ci.com/yoninazarathy/TruncatedDistributions.jl)
 
 This package provides support for univariate and multivariate distributions in Julia.
