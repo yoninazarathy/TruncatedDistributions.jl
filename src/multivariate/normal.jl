@@ -1,6 +1,6 @@
-"
+"""
 A Box Truncated normal distribution with a naive implementation and representation in the state of the mean and covariance. Works well for very low dimensions (e.g. 2,3,4).
-"
+"""
 const BasicBoxTruncatedMvNormal = TruncatedMvDistribution{MvNormal,BoxTruncationRegion,TruncatedMvDistributionSecondOrderState}
 
 function BasicBoxTruncatedMvNormal( μₑ::Vector{Float64},
@@ -12,9 +12,9 @@ function BasicBoxTruncatedMvNormal( μₑ::Vector{Float64},
     TruncatedMvDistribution{MvNormal,BoxTruncationRegion,TruncatedMvDistributionSecondOrderState}(d,r)
 end
 
-"
+"""
 A Box Truncated normal distribution with a recursive moment computation implementation.
-"
+"""
 const RecursiveMomentsBoxTruncatedMvNormal = TruncatedMvDistribution{MvNormal,BoxTruncationRegion,BoxTruncatedMvNormalRecursiveMomentsState}
 
 function RecursiveMomentsBoxTruncatedMvNormal(  μₑ::Vector{Float64},

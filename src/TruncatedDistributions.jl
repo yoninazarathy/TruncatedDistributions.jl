@@ -34,7 +34,8 @@ export
     TruncatedMvDistributionSecondOrderState,
     BasicBoxTruncatedMvNormal,
     RecursiveMomentsBoxTruncatedMvNormal,
-    EllipticalTruncationRegion
+    EllipticalTruncationRegion,
+    TruncatedMvDistributionState,
 
 include("commonTypes.jl")
 include("regions.jl")

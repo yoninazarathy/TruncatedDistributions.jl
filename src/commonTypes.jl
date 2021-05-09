@@ -3,7 +3,7 @@ A truncation region defines a subset of space to which the distribution is trunc
 "
 abstract type TruncationRegion end
 
-"
+"""
 A state abstract object representing computed quantities of a truncated multivariate distribution.
 
 Every concrete subtype should expose at least the following two fields.
@@ -22,10 +22,12 @@ Other subtypes may expose.
 Further subtypes may expose.
 - `moment_dict::Dict{Vector{Int},Float64}` A dictionary mapping multivariate moment vectors to estimate quantities.
 - `prob_dict` A dictionary mapping probability vectors to estimated quantities. 
-"
+"""
 abstract type TruncatedMvDistributionState end
 
-"A truncated multi-variate distribution composed of a Multivariate Distribution, Truncation Region and a State object implementing computable state."
+"""
+A truncated multi-variate distribution composed of a Multivariate Distribution, Truncation Region and a State object implementing computable state.
+"""
 struct TruncatedMvDistribution{D <: MultivariateDistribution, R <: TruncationRegion, S <: TruncatedMvDistributionState} 
     untruncated::D
     region::R
