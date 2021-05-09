@@ -1,5 +1,5 @@
 """
-Truncation in a box between a and b.
+Truncation in a box between `a` and `b`.
 """
 struct BoxTruncationRegion <: TruncationRegion
     a::Vector{Float64}
