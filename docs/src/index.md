@@ -3,7 +3,7 @@
 A Julia package for Truncated Distributions including multi-variate truncated distributions.
 
 For example:
-```jldoctest
+```
 julia> using TruncatedDistributions, PDMats
 
 julia> d = BasicBoxTruncatedMvNormal([2.3,4.3],PDMat([1.0 0.3; 0.3  2.4]),[-1.0, 0.5],[5.2,1.8]);
