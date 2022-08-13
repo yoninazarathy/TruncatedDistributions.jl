@@ -1,3 +1,6 @@
+"""
+QQQQ
+"""
 function insupport(d::TruncatedMvDistribution{D,R,S}, x::AbstractArray) where {D <: MultivariateDistribution, R <: TruncationRegion, S <: TruncatedMvDistributionState} 
     insupport(d.untruncated,x) && intruncationregion(d.region,x)
 end

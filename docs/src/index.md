@@ -45,6 +45,12 @@ TruncatedMvDistributionState
 TruncatedMvDistribution{D <: MultivariateDistribution, R <: TruncationRegion}
 ```
 
+## Functions applied to `TruncatedMvDistribution`
+
+```@docs
+insupport
+```
+
 ## Index
 
 ```@index
