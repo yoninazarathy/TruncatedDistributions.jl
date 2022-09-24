@@ -27,6 +27,8 @@ export
     alpha,
     pdf,
     raw_moment,
+    raw_moment_from_indices,
+    raw_moment_dict,
     mean,
     cov,
     rand,
@@ -35,16 +37,22 @@ export
     BasicBoxTruncatedMvNormal,
     RecursiveMomentsBoxTruncatedMvNormal,
     EllipticalTruncationRegion,
-    TruncatedMvDistributionState
+    TruncatedMvDistributionState,
+    μ_gradient,
+    U_gradient
 
 include("commonTypes.jl")
 include("regions.jl")
 include("commonOperations.jl")
 include("commonCompute.jl")
-include("univariate/distributionsPackageExtensions.jl")
-include("multivariate/boxTruncatedMvNormalRecursiveMomentsState.jl")
-include("multivariate/normal.jl")
-include("multivariate/otherThanNormal.jl")
-include("parameterMatching/dynamicUnivariateFit.jl")
+    include("univariate/distributionsPackageExtensions.jl")
+
+    include("multivariate/boxTruncatedMvNormalRecursiveMomentsState.jl")
+    include("multivariate/normal.jl")
+    include("multivariate/otherThanNormal.jl")
+    include("multivariate/boxTruncatedMvNormalRecursiveMoments.jl")
+
+    include("parameterMatching/dynamicUnivariateFit.jl")
+    include("parameterMatching/parameter_gradients.jl")
 
 end #module

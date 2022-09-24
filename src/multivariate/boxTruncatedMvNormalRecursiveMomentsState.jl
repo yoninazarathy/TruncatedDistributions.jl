@@ -138,6 +138,12 @@ function raw_moment(d::BoxTruncatedMvNormalRecursiveMomentsState,k::Vector{Int})
     return d.rawMomentDict[k]
 end
 
+function raw_moment_dict(d::BoxTruncatedMvNormalRecursiveMomentsState)
+    !d.rawMomentsComputed && compute_moments(d)
+    return copy(d.rawMomentDict)
+end
+
+
 # moment(d::BoxTruncatedMvNormalRecursiveMomentsState,k::Vector{Int}) = raw_moment(d,k) / alpha(d)
 
 # alpha(d::BoxTruncatedMvNormalRecursiveMomentsState) = raw_moment(d,zeros(Int,d.n))
