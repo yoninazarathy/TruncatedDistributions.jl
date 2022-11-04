@@ -10,7 +10,7 @@ end
 function raw_moment_from_indices(d::RecursiveMomentsBoxTruncatedMvNormal, indices::Vector{Int}) 
     kappa = zeros(Int, length(d))
     for i in indices
-           kappa[i] += 1
+        kappa[i] += 1
     end
     raw_moment(d, kappa)
 end

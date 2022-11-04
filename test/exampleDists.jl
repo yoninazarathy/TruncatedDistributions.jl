@@ -83,7 +83,23 @@ function normal4a()
     (MvNormal(μₑ,Σₑ), BoxTruncationRegion(a,b),properties)
 end
 
+function normal2untruncated()
+    μₑ = [2.5, 3.5]
+    Σₑ = [2.0 -0.5;
+         -0.5 5.0]
+    a = [-10.,10]
+    b = [-10.,10]
+    properties = Dict{String,Any}()
+    properties["length"] = 2
+    properties["tp"] = 1.0
+    properties["mean"] = copy(μₑ)
+    properties["covariance"] = copy(Σₑ)
+    properties["some_moment_to_check"] = [0, 0]
+    properties["some_moment_to_check_value"] = 1.0 
+    (MvNormal(μₑ,Σₑ), BoxTruncationRegion(a,b),properties)
+end
+
 distribution_generators2 = [normal2a,normal2b,normal2c]
 distribution_generators3 = [normal3a]
 distribution_generators4 = [normal4a]
-distribution_generators = vcat(distribution_generators2,distribution_generators3,distribution_generators4) 
+distribution_generators = vcat(distribution_generators2,distribution_generators3,distribution_generators4,normal2untruncated) 

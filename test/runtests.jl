@@ -44,8 +44,8 @@ end
 
 # test_distribution.(distribution_generators)
 
-d, r, _ = distribution_generators[4]()
-d = RecursiveMomentsBoxTruncatedMvNormal(d.μ, d.Σ, r.a, r.b; max_moment_levels = 4);
-μ_gradient(d, d.untruncated.μ, d.untruncated.μ, d.untruncated.Σ)
+d, r, _ = distribution_generators[5]()
+dtrunc = RecursiveMomentsBoxTruncatedMvNormal(d.μ, d.Σ, r.a, r.b; max_moment_levels = 4);
+μ_gradient(dtrunc, dtrunc.untruncated.μ, dtrunc.untruncated.μ, dtrunc.untruncated.Σ)
 
-U_gradient(d, d.untruncated.μ, d.untruncated.μ, d.untruncated.Σ)
+# U_gradient(d, d.untruncated.μ, d.untruncated.μ, d.untruncated.Σ)
