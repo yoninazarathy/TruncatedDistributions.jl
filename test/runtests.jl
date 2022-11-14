@@ -44,8 +44,27 @@ end
 
 # test_distribution.(distribution_generators)
 
-d, r, _ = distribution_generators[5]()
-dtrunc = RecursiveMomentsBoxTruncatedMvNormal(d.μ, d.Σ, r.a, r.b; max_moment_levels = 4);
-μ_gradient(dtrunc, dtrunc.untruncated.μ, dtrunc.untruncated.μ, dtrunc.untruncated.Σ)
 
-# U_gradient(d, d.untruncated.μ, d.untruncated.μ, d.untruncated.Σ)
+# Trying on an untruncated case
+if false
+       d = MvNormal([0,0],[1.0 0; 0 1.0])
+       r = BoxTruncationRegion([-10.0, -10.0], [10.0, 10.0])
+       dtrunc = RecursiveMomentsBoxTruncatedMvNormal(d.μ, d.Σ, r.a, r.b; max_moment_levels = 4);
+       grad = μ_gradient(dtrunc, mean(dtrunc), [0.0, 0.0], PDMat([1.0 0; 0 1.0]))
+       @show grad
+end
+
+##### Trying on a simple positive truncation....
+# d, r, _ = distribution_generators[1]()
+if true
+       tnd = Truncated(Normal(),0,Inf)
+       mnd, vnd = mean(tnd), var(tnd)
+       @show mnd, vnd
+       cnd = PDMat([vnd 0.0; 0.0 vnd])
+       d = MvNormal([0,0],[1.0 0; 0 1.0])
+       r = BoxTruncationRegion([0.0, 0.0], [5.0, 5.0])
+       dtrunc = RecursiveMomentsBoxTruncatedMvNormal(d.μ, d.Σ, r.a, r.b; max_moment_levels = 4);
+       grad = μ_gradient(dtrunc, mean(dtrunc), [mnd, mnd], cnd)
+       @show grad
+end
+# U_gradient(d, d.untruncated.μ, d.utruncated.μ, d.untruncated.Σ)

@@ -46,6 +46,7 @@ function compute_cov(d::TruncatedMvDistribution{D,R};
         @error("still not implemented")
     elseif alg == :hc
         μ = mean(d)
+        #QQQQ-replace with computation based on moments
         d.state.Σ, d.state.Σ_err = hcubature((x)->pdf(d,x)*(x-μ)*(x-μ)',d.region.a, d.region.b)
     else
         error("Unknown algorithm $(alg)")
