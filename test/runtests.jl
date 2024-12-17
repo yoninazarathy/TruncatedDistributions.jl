@@ -62,7 +62,7 @@ if true
        @show mnd, vnd
        cnd = PDMat([vnd 0.0; 0.0 vnd])
        d = MvNormal([0,0],[1.0 0; 0 1.0])
-       r = BoxTruncationRegion([0.0, 0.0], [5.0, 5.0])
+       r = BoxTruncationRegion([0.0, 0.0], [25.0, 25.0])
        dtrunc = RecursiveMomentsBoxTruncatedMvNormal(d.μ, d.Σ, r.a, r.b; max_moment_levels = 4);
        grad = μ_gradient(dtrunc, mean(dtrunc), [mnd, mnd], cnd)
        @show grad

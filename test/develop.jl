@@ -2,8 +2,158 @@ using TruncatedDistributions
 using Distributions
 using HCubature
 using PDMats
+using LinearAlgebra
+
+using Pkg
+Pkg.activate(".")
 
 # include("exampleDists.jl")
 
+# μ = [0.5, -0.2]
+# Σ = PDMat([1.5 0.0; 0.0 2.0])
+# a1, b1 = -2, 3
+# a2, b2 = -4, 1
+# tnd1 = Truncated(Normal(μ[1],√Σ[1,1]), a1, b1)
+# tnd2 = Truncated(Normal(μ[2],√Σ[2,2]), a2, b2)
+# mnd1, vnd1 = mean(tnd1), var(tnd1)
+# mnd2, vnd2 = mean(tnd2), var(tnd2)
+# # @show (mnd1, vnd1)
+# # @show (mnd2, vnd2)
+# μ̂ = [mnd1, mnd2]
+# Σ̂ = PDMat([vnd1 0.0; 0.0 vnd2])
+# d = MvNormal(μ, Σ)
+# r = BoxTruncationRegion([a1, a2], [b1, b2])
+# dtrunc = RecursiveMomentsBoxTruncatedMvNormal(d.μ, d.Σ, r.a, r.b; max_moment_levels = 4);
+# μA =  mean(dtrunc)
+# # @show μA
+# grad = μ_gradient(dtrunc, μA, μ̂, Σ̂)
 
 
+# # println("\nNow perturb μ")
+# μ_off = μ + [0.2, 0.2]
+# # @show norm(μ-μ_off)
+# running_μ = copy(μ_off)
+
+# if false #gradient descent just for μ
+#     for i in 1:300
+#         @show i   
+#         global d = MvNormal(running_μ, Σ)
+#         global r = BoxTruncationRegion([a1, a2], [b1, b2])
+#         global dtrunc = RecursiveMomentsBoxTruncatedMvNormal(d.μ, d.Σ, r.a, r.b; max_moment_levels = 4);
+#         global μA = mean(dtrunc)
+#         global grad = μ_gradient(dtrunc, μA, μ̂, Σ̂)
+#         global running_μ = running_μ -0.2*grad
+#         @show norm(running_μ - μ)
+#     end
+# end
+
+# # println("\nCheck U gradient is zero at correct value")
+# U = inv(Matrix(√Σ))
+# μ_off = μ  + [-0.4, 0.3]
+# @show U_gradient(dtrunc, μA, μ̂, Σ̂; U = U)
+# @show U_gradient(dtrunc, μA, μ̂, Σ̂)
+
+# println("\nNow perturb Σ")
+# Σ_off = Σ + [0.15 0.04 ; 0.04 0.05]
+# @show eigvals(Σ_off)
+# @show norm(Σ - Σ_off)
+# running_μ = copy(μ_off)
+# running_U = cholesky(inv(Σ_off)).U
+# running_Σ = inv(running_U)*inv(running_U)'
+# # @show running_Σ, Σ_off
+
+# errsΣ = []
+# errsμ = []
+# losses = []
+
+# if false # complete gradient descent 
+#     alpha = 0.01
+#     println("\nGradient descent")
+#     for i in 1:500
+#         @show i
+#         global d = MvNormal(running_μ, running_Σ)
+#         global r = BoxTruncationRegion([a1, a2], [b1, b2])
+#         global dtrunc = RecursiveMomentsBoxTruncatedMvNormal(d.μ, d.Σ, r.a, r.b; max_moment_levels = 4);
+#         global μA = mean(dtrunc)
+#         global μ_grad = μ_gradient(dtrunc, μA, μ̂, Σ̂)
+#         global U_grad = U_gradient(dtrunc, μA, μ̂, Σ̂)#QQQQ; U = running_U)
+#         # if i == 70
+#         #     global alpha = alpha/10
+#         # end
+#         global running_μ = running_μ - 5*alpha*μ_grad
+#         global running_U = running_U - alpha*U_grad
+#         # display(running_U)
+#         global running_Σ = inv(running_U)*inv(running_U)'
+#         display(running_Σ)
+#         loss = norm(mean(dtrunc) - μ̂) + norm(cov(dtrunc) - Σ̂) 
+#         push!(losses, loss)
+#         # @show norm(running_μ - μ)
+#         # @show norm(running_Σ - Σ)
+#         # push!(errsμ, norm(running_μ - μ))
+#         # push!(errsΣ, norm(running_Σ - Σ))
+#     end
+# end
+
+# # hcub_m0 = hcubature((x)->pdf(dtrunc.untruncated,x),dtrunc.region.a, dtrunc.region.b)[1]
+# # hcub_mx = hcubature((x)->pdf(dtrunc.untruncated,x).*x,dtrunc.region.a, dtrunc.region.b)[1]
+
+# # U_gradient(dtrunc, μA, μ̂, Σ̂)
+
+Σ = [1 0.1 0.1;
+     0.1 2 0.1;
+     0.1 0.1 3]
+μ = [0, 0, 0.0]
+d = MvNormal(μ, Σ)
+r = BoxTruncationRegion([-10, -10, -10], [10, 10, 10])
+dtrunc = RecursiveMomentsBoxTruncatedMvNormal(d.μ, d.Σ, r.a, r.b; max_moment_levels = 4);
+@show mean(dtrunc)
+@show cov(dtrunc)
+@show tp(dtrunc)
+μ̂ = mean(dtrunc)#[-1, 2.5, 3.3]
+Σ̂ = cov(dtrunc)
+# PDMat([0.5 0.1 0.05;
+#      0.1 1.5 0.25;
+#      0.05 0.25 1.2]);
+
+# Σ = [1 0.2;
+#      0.2 2]
+# μ = [-1.5, 1.5]
+# d = MvNormal(μ, Σ)
+# r = BoxTruncationRegion([-3, -2,], [4, 4])
+# dtrunc = RecursiveMomentsBoxTruncatedMvNormal(d.μ, d.Σ, r.a, r.b; max_moment_levels = 4);
+# @show mean(dtrunc)
+# @show cov(dtrunc)
+# @show tp(dtrunc)
+# μ̂ = [-1.2, 1.6]
+# Σ̂ = PDMat([0.7 0.1;
+#             0.1 1.5]);
+
+
+if true # complete gradient descent 
+    losses_μ = []
+    losses_Σ = []
+    losses_total = []
+    running_μ = copy(μ)
+    running_Σ = copy(Σ)
+    running_U = cholesky(inv(running_Σ)).U
+    alpha = 0.05
+    println("\nGradient descent")
+    for i in 1:5
+        @show i
+        global d = MvNormal(running_μ, running_Σ)
+        global dtrunc = RecursiveMomentsBoxTruncatedMvNormal(d.μ, d.Σ, r.a, r.b; max_moment_levels = 4);
+        global μA = mean(dtrunc)
+        global μ_grad = μ_gradient(dtrunc, μA, μ̂, Σ̂)
+        global U_grad = U_gradient(dtrunc, μA, μ̂, Σ̂)
+        global running_μ = running_μ - 10*alpha*μ_grad
+        global running_U = running_U - alpha*U_grad
+        global running_Σ = inv(running_U)*inv(running_U)'
+        loss_μ = norm(mean(dtrunc) - μ̂)
+        loss_Σ =norm(cov(dtrunc) - Σ̂)
+        loss_total = loss_μ + loss_Σ
+        @show loss_total, (loss_μ, loss_Σ)
+        push!(losses_total, loss_total)
+        push!(losses_μ, loss_μ)
+        push!(losses_Σ, loss_Σ)
+    end
+end
