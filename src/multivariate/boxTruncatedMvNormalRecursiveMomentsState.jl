@@ -39,11 +39,11 @@ mutable struct BoxTruncatedMvNormalRecursiveMomentsState <: TruncatedMvDistribut
                     for j in 1:n]
             Σ̃ = [Σₑ[setdiff(1:n,j),setdiff(1:n,j)] - (1/Σₑ[j,j])*Σₑ[setdiff(1:n,j),j]*Σₑ[j,setdiff(1:n,j)]' for j in 1:n]
             children_a = [BoxTruncatedMvNormalRecursiveMomentsState(
-                            MvNormal(μᵃ[j],Σ̃[j]),
+                            MvNormal(μᵃ[j],0.5*(Σ̃[j] + Σ̃[j]')),
                             BoxTruncationRegion(a[setdiff(1:n,j)],b[setdiff(1:n,j)]),
                             max_moment_levels) for j in 1:n]
             children_b = [BoxTruncatedMvNormalRecursiveMomentsState(
-                            MvNormal(μᵇ[j],Σ̃[j]),
+                            MvNormal(μᵇ[j],0.5*(Σ̃[j] + Σ̃[j]')),
                             BoxTruncationRegion(a[setdiff(1:n,j)],b[setdiff(1:n,j)]),
                             max_moment_levels) for j in 1:n]
         else #n==1

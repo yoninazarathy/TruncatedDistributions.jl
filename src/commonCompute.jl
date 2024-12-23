@@ -31,7 +31,7 @@ function compute_mean(d::TruncatedMvDistribution{D,R};
     if alg == :mc
         @error("still not implemented")
     elseif alg == :hc
-        d.state.μ, d.state.μ_err = hcubature((x)->pdf(d,x)*x,d.region.a, d.region.b)
+        d.state.μ, d.state.μ_err = hcubature((x)->pdf(d,x)*x,d.region.a, d.region.b; maxevals = 10^6)
     else
         error("Unknown algorithm $(alg)")
     end
@@ -47,7 +47,7 @@ function compute_cov(d::TruncatedMvDistribution{D,R};
     elseif alg == :hc
         μ = mean(d)
         #QQQQ-replace with computation based on moments
-        res = hcubature((x)->pdf(d,x)*(x-μ)*(x-μ)',d.region.a, d.region.b)        
+        res = hcubature((x)->pdf(d,x)*(x-μ)*(x-μ)',d.region.a, d.region.b; maxevals = 10^6)        
         d.state.Σ, d.state.Σ_err = PDMat(0.5*(res[1] + res[1]')), res[2]
     else
         error("Unknown algorithm $(alg)")
@@ -63,7 +63,7 @@ function compute_moment(d::TruncatedMvDistribution{D,R},k::Vector{Int};
     if alg == :mc
         @error("still not implemented")
     elseif alg == :hc
-        return hcubature((x)->pdf(d,x)*prod(x.^k),d.region.a, d.region.b)[1]
+        return hcubature((x)->pdf(d,x)*prod(x.^k),d.region.a, d.region.b; maxevals = 10^6)[1]
     else
         error("Unknown algorithm $(alg)")
     end

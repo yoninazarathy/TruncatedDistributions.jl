@@ -34,7 +34,7 @@ function U_gradient(    d::RecursiveMomentsBoxTruncatedMvNormal,
     μ = d.untruncated.μ
     Σ = d.untruncated.Σ
     if isnothing(U)
-        U = cholesky(inv(Matrix(Σ))).U
+        U = cholesky(0.5*(inv(Matrix(Σ)) + inv(Matrix(Σ))')).U
     end
     n = length(d)
 
