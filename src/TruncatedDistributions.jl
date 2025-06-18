@@ -39,7 +39,8 @@ export
     EllipticalTruncationRegion,
     TruncatedMvDistributionState,
     μ_gradient,
-    U_gradient
+    U_gradient,
+    loss_based_fit
 
 include("commonTypes.jl")
 include("regions.jl")
@@ -54,5 +55,7 @@ include("commonCompute.jl")
 
     include("parameterMatching/dynamicUnivariateFit.jl")
     include("parameterMatching/parameter_gradients.jl")
+
+include("parameterMatching/lossMultivariateFit.jl")
 
 end #module

@@ -116,73 +116,90 @@ using LinearAlgebra
 #         0.00  0.0  1.7])
 # #cov(dtrunc)
 
-Σ = PDMat([1 0.2;
-          0.2 2])
-μ = [2.5, 1.5]
-d = MvNormal(μ, Σ)
-r = BoxTruncationRegion([-2.8, -5], [4.25, 3.5])
-dtrunc = RecursiveMomentsBoxTruncatedMvNormal(d.μ, d.Σ, r.a, r.b; max_moment_levels = 4);
-@show mean(dtrunc)
-@show cov(dtrunc)
-@show tp(dtrunc)
-μ̂ = [4, 2.]
-Σ̂ = PDMat([0.2 0.2;
-            0.2 0.8])
-# PDMat([0.4 0.15;
-#             0.15 1.3]);
+# Σ = PDMat([1 0.2;
+#           0.2 2])
+# μ = [2.5, 1.5]
+# d = MvNormal(μ, Σ)
+# r = BoxTruncationRegion([-2.8, -5], [4.25, 3.5])
+# dtrunc = RecursiveMomentsBoxTruncatedMvNormal(d.μ, d.Σ, r.a, r.b; max_moment_levels = 4);
+# @show mean(dtrunc)
+# @show cov(dtrunc)
+# @show tp(dtrunc)
+# μ̂ = [4, 2.]
+# Σ̂ = PDMat([0.2 0.2;
+#             0.2 0.8])
+# # PDMat([0.4 0.15;
+# #             0.15 1.3]);
 
-if true # complete gradient descent 
-    losses_μ = []
-    losses_Σ = []
-    dists = []
-    losses_total = []
-    running_μ = copy(μ)
-    running_Σ = copy(Σ)
-    running_U = cholesky(0.5*(inv(running_Σ) + inv(running_Σ)')).U
-    alpha = 0.005
-    println("\nGradient descent")
-    for i in 1:200
-        @show i
-        push!(dists, dtrunc)
-        global d = MvNormal(running_μ, 0.5*(running_Σ + running_Σ'))
-        global dtrunc = RecursiveMomentsBoxTruncatedMvNormal(d.μ, d.Σ, r.a, r.b; max_moment_levels = 4);
-        global μA = mean(dtrunc)
-        global μ_grad = μ_gradient(dtrunc, μA, μ̂, Σ̂)
-        global U_grad = U_gradient(dtrunc, μA, μ̂, Σ̂)
-        global running_μ = running_μ - 10*alpha*μ_grad
-        global running_U = running_U - alpha*U_grad
-        global running_Σ = inv(running_U)*inv(running_U)'
-        loss_μ = norm(mean(dtrunc) - μ̂)
-        loss_Σ =norm(cov(dtrunc) - Σ̂)
-        loss_total = loss_μ + loss_Σ
-        @show loss_total, (loss_μ, loss_Σ)
-        push!(losses_total, loss_total)
-        push!(losses_μ, loss_μ)
-        push!(losses_Σ, loss_Σ)
-    end
-end
+# if false # complete gradient descent 
+#     losses_μ = []
+#     losses_Σ = []
+#     dists = []
+#     losses_total = []
+#     running_μ = copy(μ)
+#     running_Σ = copy(Σ)
+#     running_U = cholesky(0.5*(inv(running_Σ) + inv(running_Σ)')).U
+#     alpha = 0.005
+#     println("\nGradient descent")
+#     for i in 1:200
+#         @show i
+#         push!(dists, dtrunc)
+#         global d = MvNormal(running_μ, 0.5*(running_Σ + running_Σ'))
+#         global dtrunc = RecursiveMomentsBoxTruncatedMvNormal(d.μ, d.Σ, r.a, r.b; max_moment_levels = 4);
+#         global μA = mean(dtrunc)
+#         global μ_grad = μ_gradient(dtrunc, μA, μ̂, Σ̂)
+#         global U_grad = U_gradient(dtrunc, μA, μ̂, Σ̂)
+#         global running_μ = running_μ - 10*alpha*μ_grad
+#         global running_U = running_U - alpha*U_grad
+#         global running_Σ = inv(running_U)*inv(running_U)'
+#         loss_μ = norm(mean(dtrunc) - μ̂)
+#         loss_Σ =norm(cov(dtrunc) - Σ̂)
+#         loss_total = loss_μ + loss_Σ
+#         @show loss_total, (loss_μ, loss_Σ)
+#         push!(losses_total, loss_total)
+#         push!(losses_μ, loss_μ)
+#         push!(losses_Σ, loss_Σ)
+#     end
+# end
 
-using Plots
+# using Plots
 
-@info "Creating animation"
-@gif for dd in dists
-    x = range(r.a[1], r.b[1], length=300)
-    y = range(r.a[2], r.b[2], length=300)
-    X = repeat(x, 1, length(y))'
-    Y = repeat(y, 1, length(x))
+# @info "Creating animation"
+# @gif for dd in dists
+#     x = range(r.a[1], r.b[1], length=300)
+#     y = range(r.a[2], r.b[2], length=300)
+#     X = repeat(x, 1, length(y))'
+#     Y = repeat(y, 1, length(x))
 
-    # Compute the density at each grid point
-    Z = [log(pdf(dd.untruncated, [xi, yi])) for (xi, yi) in zip(vec(X), vec(Y))]
-    Z = reshape(Z, length(x), length(y))
+#     # Compute the density at each grid point
+#     Z = [log(pdf(dd.untruncated, [xi, yi])) for (xi, yi) in zip(vec(X), vec(Y))]
+#     Z = reshape(Z, length(x), length(y))
 
-    # Plot the contours
-    contour(x, y, Z, 
-                xlabel="x₁", 
-                ylabel="x₂", 
-                color=:viridis,
-                xlim=(r.a[1], r.b[1]),
-                ylim=(r.a[2], r.b[2]),
-                aspect_ratio = 1, 
-                legend=false,
-                levels = 30)
-end
+#     # Plot the contours
+#     contour(x, y, Z, 
+#                 xlabel="x₁", 
+#                 ylabel="x₂", 
+#                 color=:viridis,
+#                 xlim=(r.a[1], r.b[1]),
+#                 ylim=(r.a[2], r.b[2]),
+#                 aspect_ratio = 1, 
+#                 legend=false,
+#                 levels = 30)
+# end
+
+μ̂ = [4.9, -1.5]
+Σ̂ = [7.5 0.3;
+     0.3 0.4];
+a = [-3.2, -3.5];
+b = [4.5, 1.3];
+
+dtrunc = loss_based_fit(μ̂, Σ̂, a, b)
+
+
+# μ̂z = [0.0, 0]
+# Σ̂z = [1  0.3/√(1.7*0.4);
+#       0.3/√(1.7*0.4) 1]
+# az = (a - μ̂) ./ diag(Σ̂)
+# bz = (b - μ̂) ./ diag(Σ̂)
+
+# dtruncz = loss_based_fit(μ̂z, Σ̂z, az, bz)
