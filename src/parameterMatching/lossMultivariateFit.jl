@@ -28,10 +28,10 @@ function loss_based_fit(μ̂::Vector{Float64}, Σ̂::Matrix{Float64}, a::Vector{
         push!(dists, dtrunc)
         dtrunc = RecursiveMomentsBoxTruncatedMvNormal(μ, Σ, a0, b0; max_moment_levels = 4);
         μA = mean(dtrunc)
-        μ_grad = μ_gradient(dtrunc, μA, μ̂0, Σ̂0)
-        U_grad = U_gradient(dtrunc, μA, μ̂0, Σ̂0)
-        μ -= 10*α*μ_grad
-        U -= α*U_grad
+        μ_grad = μ_gradient(dtrunc, μA, μ̂0, Σ̂0)'
+        U_grad = U_gradient(dtrunc, μA, μ̂0, Σ̂0) #QQQQ pass in U
+        μ = μ - 10*α*μ_grad #gradient based update
+        U = U - α*U_grad #gradient based update
         Ui = inv(U)
         Σ = PDMat(Ui*Ui')
         loss_μ = norm(mean(dtrunc) - μ̂0)

@@ -23,7 +23,7 @@ function μ_gradient(    d::RecursiveMomentsBoxTruncatedMvNormal,
         - m0*(μA[ii(k)]*μA[jj(k)] - Σ̂[ii(k),jj(k)]) 
         ) 
         for k in 1:n^2, l in 1:n]
-    return ((I1'*I2 + I3'*I4)*inv(Matrix(Σ)))'
+    return (I1'*I2 + I3'*I4)*inv(Matrix(Σ)) #note it returns a row (just like the paper)
 end
 
 function U_gradient(    d::RecursiveMomentsBoxTruncatedMvNormal, 
@@ -82,8 +82,8 @@ function U_gradient(    d::RecursiveMomentsBoxTruncatedMvNormal,
     #             + m0*μ̂[i]*(Σ[k,l] + μ[k]*μ[l])
     #             ) for k in 1:n, l in 1:n]
     # CODE for testing I2
-    Q = triu(fill(1,n,n))
-    iU = inv(U)
+    # Q = triu(fill(1,n,n))
+    iU = inv(U) #QQQQ see if to pass in as optional arg?
     # @show iU
     # @show Σ
     # @show iU*iU'
@@ -95,9 +95,12 @@ function U_gradient(    d::RecursiveMomentsBoxTruncatedMvNormal,
     # I2c(i) = (hcubature((x)->pdf(d.untruncated,x)*fill(μ̂[i] - x[i], n, n) .* Diagonal(iU),d.region.a, d.region.b; atol=0.0000001)[1]) - Q' .* (hcubature((x)->pdf(d.untruncated,x)*fill(x[i]- μ̂[i], n, n) .* ((x-μ)*(x-μ)'*U'),d.region.a, d.region.b; atol=0.0000001)[1])
     # @show iU
 
-    I2(i) = [k > l ? 0.0 : (k == l ? iU[k,k]*(m0*μ̂[i] - m([i])) : 0.0) - sum(U[k,j]*(
-        m([i,l,j]) - m([i,j])*μ[l] - m([l,j])*μ̂[i] - m([i,l])*μ[j] + m([i])*μ[l]*μ[j] + m([j])*μ[l]*μ̂[i] + m([l])*μ̂[i]*μ[j] - m0*μ̂[i]*μ[l]*μ[j]
-        )  for j in k:n) for k=1:n, l=1:n]
+    I2(i) = [k > l ? 0.0 : 
+                (k == l ? iU[k,k]*(m0*μ̂[i] - m([i])) : 0.0) 
+                - sum(U[k,j]*(
+                    m([i,l,j]) - m([i,j])*μ[l] - m([l,j])*μ̂[i] - m([i,l])*μ[j] + m([i])*μ[l]*μ[j] + m([j])*μ[l]*μ̂[i] + m([l])*μ̂[i]*μ[j] - m0*μ̂[i]*μ[l]*μ[j]
+                    )  for j in k:n) 
+                    for k=1:n, l=1:n]
     
     
     # println("I2(1):");display(I2(1))
