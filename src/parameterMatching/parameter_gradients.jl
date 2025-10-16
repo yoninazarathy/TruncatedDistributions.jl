@@ -98,7 +98,7 @@ function U_gradient(    d::RecursiveMomentsBoxTruncatedMvNormal,
     I2(i) = [k > l ? 0.0 : 
                 (k == l ? iU[k,k]*(m0*μ̂[i] - m([i])) : 0.0) 
                 - sum(U[k,j]*(
-                    m([i,l,j]) - m([i,j])*μ[l] - m([l,j])*μ̂[i] - m([i,l])*μ[j] + m([i])*μ[l]*μ[j] + m([j])*μ[l]*μ̂[i] + m([l])*μ̂[i]*μ[j] - m0*μ̂[i]*μ[l]*μ[j]
+                    m([i,j,l]) - m([i,j])*μ[l] - m([l,j])*μ̂[i] - m([i,l])*μ[j] + m([i])*μ[l]*μ[j] + m([j])*μ̂[i]*μ[l] + m([l])*μ̂[i]*μ[j] - m0*μ̂[i]*μ[j]*μ[l]
                     )  for j in k:n) 
                     for k=1:n, l=1:n]
     
