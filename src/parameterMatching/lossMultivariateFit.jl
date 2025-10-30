@@ -22,10 +22,9 @@ function loss_based_fit(μ̂::Vector{Float64}, Σ̂::Matrix{Float64}, a::Vector{
     U = cholesky(0.5*(inv(Σ) + inv(Σ)')).U
     dtrunc = RecursiveMomentsBoxTruncatedMvNormal(μ, Σ, a0, b0; max_moment_levels = 4);
 
-    α = 0.005
-    for i in 1:500
-        @show i
-        push!(dists, dtrunc)
+    α = 0.05
+    @showprogress for _ in 1:40
+        push!(dists,  RecursiveMomentsBoxTruncatedMvNormal(dtrunc.untruncated.μ .*std_devs + μ̂, PDMat(dtrunc.untruncated.Σ .* (std_devs * std_devs')), a, b; max_moment_levels = 2))
         dtrunc = RecursiveMomentsBoxTruncatedMvNormal(μ, Σ, a0, b0; max_moment_levels = 4);
         μA = mean(dtrunc)
         μ_grad = μ_gradient(dtrunc, μA, μ̂0, Σ̂0)'
@@ -42,8 +41,11 @@ function loss_based_fit(μ̂::Vector{Float64}, Σ̂::Matrix{Float64}, a::Vector{
         push!(losses_μ, loss_μ)
         push!(losses_Σ, loss_Σ)
     end
-
     Σ = PDMat(Σ .* (std_devs * std_devs')) #back to original coordinates
     μ = μ .*std_devs + μ̂
-    return RecursiveMomentsBoxTruncatedMvNormal(μ, Σ, a, b; max_moment_levels = 4);
+    return RecursiveMomentsBoxTruncatedMvNormal(μ, Σ, a, b; max_moment_levels = 4), 
+                (losses_total = losses_total, 
+                losses_μ = losses_μ,
+                losses_Σ = losses_Σ,
+                dists = dists)
 end

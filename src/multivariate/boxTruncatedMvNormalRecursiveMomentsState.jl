@@ -123,7 +123,7 @@ function compute_moments(d::BoxTruncatedMvNormalRecursiveMomentsState)
         compute_children_moments(d,baseKey) #start recursion
     else  #n==1
         @assert d.n == 1
-        distTruncated = TruncatedNormal(d.d.μ[1],sqrt(d.d.Σ[1]),d.r.a[1],d.r.b[1])
+        distTruncated = truncated(Normal(d.d.μ[1],sqrt(d.d.Σ[1])),d.r.a[1],d.r.b[1])
         d.rawMomentDict[[0]] = distTruncated.tp
         m = moments(distTruncated, d.max_moment_levels)
         for i in 1:d.max_moment_levels
@@ -184,6 +184,6 @@ end
 # end
 
 function LL(d::BoxTruncatedMvNormalRecursiveMomentsState)
-    @info "doing base numerical integral on dimension $(d.n)."
+    # @info "doing base numerical integral on dimension $(d.n)."
     hcubature((x)->pdf(d.d,x),d.r.a,d.r.b,maxevals = 10^6)[1]
 end

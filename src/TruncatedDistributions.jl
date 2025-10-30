@@ -4,6 +4,7 @@ using Distributions
 using HCubature
 using LinearAlgebra
 using PDMats
+using ProgressMeter
 
 import Distributions: insupport, pdf, moment
 import Base: size, length, show, rand

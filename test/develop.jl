@@ -164,42 +164,38 @@ using LinearAlgebra
 
 # using Plots
 
-# @info "Creating animation"
-# @gif for dd in dists
-#     x = range(r.a[1], r.b[1], length=300)
-#     y = range(r.a[2], r.b[2], length=300)
-#     X = repeat(x, 1, length(y))'
-#     Y = repeat(y, 1, length(x))
 
-#     # Compute the density at each grid point
-#     Z = [log(pdf(dd.untruncated, [xi, yi])) for (xi, yi) in zip(vec(X), vec(Y))]
-#     Z = reshape(Z, length(x), length(y))
+μ̂ = [4.5, -1.0]
+Σ̂ = [0.8 0.3;
+     0.3 0.2];
+a = [2, -2.0];
+b = [6.5, 1];
 
-#     # Plot the contours
-#     contour(x, y, Z, 
-#                 xlabel="x₁", 
-#                 ylabel="x₂", 
-#                 color=:viridis,
-#                 xlim=(r.a[1], r.b[1]),
-#                 ylim=(r.a[2], r.b[2]),
-#                 aspect_ratio = 1, 
-#                 legend=false,
-#                 levels = 30)
-# end
+dtrunc, logs = loss_based_fit(μ̂, Σ̂, a, b)
+@show mean(dtrunc)
+@show cov(dtrunc)
 
-μ̂ = [4.9, -1.5]
-Σ̂ = [7.5 0.3;
-     0.3 0.4];
-a = [-3.2, -3.5];
-b = [4.5, 1.3];
+@info "Creating animation"
+@gif for (t,dd) in enumerate(logs.dists)
+     @show mean(dd)
+     @show cov(dd)
+    x = range(a[1], b[1], length=300)
+    y = range(a[2], b[2], length=300)
+    X = repeat(x, 1, length(y))'
+    Y = repeat(y, 1, length(x))
 
-dtrunc = loss_based_fit(μ̂, Σ̂, a, b)
+    # Compute the density at each grid point
+    Z = [log(pdf(dd.untruncated, [xi, yi])) for (xi, yi) in zip(vec(X), vec(Y))]
+    Z = reshape(Z, length(x), length(y))
 
-
-# μ̂z = [0.0, 0]
-# Σ̂z = [1  0.3/√(1.7*0.4);
-#       0.3/√(1.7*0.4) 1]
-# az = (a - μ̂) ./ diag(Σ̂)
-# bz = (b - μ̂) ./ diag(Σ̂)
-
-# dtruncz = loss_based_fit(μ̂z, Σ̂z, az, bz)
+    # Plot the contours
+    contour(x, y, Z, 
+                xlabel="x₁", 
+                ylabel="x₂", 
+                color=:viridis,
+                xlim=(a[1], b[1]),
+                ylim=(a[2], b[2]),
+                aspect_ratio = 1, 
+                legend=false,
+                levels = 30, title = "t = $t, loss = $(round(logs.losses_total[t], digits = 5))")
+end every 1 fps=2
