@@ -165,22 +165,89 @@ using LinearAlgebra
 # using Plots
 
 
-μ̂ = [4.5, -1.0]
-Σ̂ = [0.8 0.3;
-     0.3 0.2];
-a = [2, -2.0];
-b = [6.5, 1];
+# μ̂ = [4.5, -1.0]
+# Σ̂ = [0.8 0.3;
+#      0.3 0.2];
+# a = [2, -2.0];
+# b = [6.5, 1];
+
+# dtrunc, logs = loss_based_fit(μ̂, Σ̂, a, b)
+# @show mean(dtrunc)
+# @show cov(dtrunc)
+
+# @info "Creating animation"
+# @gif for (t,dd) in enumerate(logs.dists)
+#      @show mean(dd)
+#      @show cov(dd)
+#     x = range(a[1], b[1], length=300)
+#     y = range(a[2], b[2], length=300)
+#     X = repeat(x, 1, length(y))'
+#     Y = repeat(y, 1, length(x))
+
+#     # Compute the density at each grid point
+#     Z = [log(pdf(dd.untruncated, [xi, yi])) for (xi, yi) in zip(vec(X), vec(Y))]
+#     Z = reshape(Z, length(x), length(y))
+
+#     # Plot the contours
+#     contour(x, y, Z, 
+#                 xlabel="x₁", 
+#                 ylabel="x₂", 
+#                 color=:viridis,
+#                 xlim=(a[1], b[1]),
+#                 ylim=(a[2], b[2]),
+#                 aspect_ratio = 1, 
+#                 legend=false,
+#                 levels = 30, title = "t = $t, loss = $(round(logs.losses_total[t], digits = 5))")
+# end every 1 fps=2
+
+
+# μ̂ = [4.5, -1.0, 2.0]
+# Σ̂ = [0.8 0.1 -0.1;
+#      0.1 1.2 0.1;
+#      -0.1 0.1 0.5]
+# a = [2, -4.0, -4];
+# b = [6.5, 5, 5];
+
+# dtrunc, logs = loss_based_fit(μ̂, Σ̂, a, b)
+# @show mean(dtrunc)
+# @show cov(dtrunc)
+
+
+# μ̂ = [4.5, -1.0, 2.0]
+# Σ̂ = [0.8 0.0 0.0;
+#      0.0 1.2 0.0;
+#      0.0 0.0 0.5]
+# a = [2, -4.0, -4];
+# b = [6.5, 5, 5];
+
+# dtrunc, logs = loss_based_fit(μ̂, Σ̂, a, b)
+# @show mean(dtrunc)
+# @show cov(dtrunc)
+
+# https://cran.r-project.org/web/packages/tmvtnorm/tmvtnorm.pdf and paper "Moments Calculation for the Doubly Truncated
+# Multivariate Normal Density" (2021) B. G. Manjunath1 and Stefan Wilhelm2
+# Example 1 in that paper
+μ̂ = [-0.1516343, -0.3881151]
+Σ̂ = [0.1630439 00.1613371;
+     0.1613371 0.6062505]
+a = [-1.0, -8]; #this -8 needs to be -inf but causes problems 
+b = [0.5, 1];
 
 dtrunc, logs = loss_based_fit(μ̂, Σ̂, a, b)
 @show mean(dtrunc)
 @show cov(dtrunc)
+@show dtrunc.untruncated
+# interesting that we don't get the same original parameters in that paper, this is perhaps a situation of non-uniqueness.
 
-@info "Creating animation"
-@gif for (t,dd) in enumerate(logs.dists)
-     @show mean(dd)
-     @show cov(dd)
-    x = range(a[1], b[1], length=300)
-    y = range(a[2], b[2], length=300)
+dtrunc_paper = RecursiveMomentsBoxTruncatedMvNormal([0.5, 0.5], PDMat([1.0 1.2 ; 1.2 2.0]), a, b);
+@show mean(dtrunc_paper)
+@show cov(dtrunc_paper)
+
+using Plots
+function plot_dd(dd,pp = plot(), color = :blue)
+     @show dd.untruncated
+    x = range(dd.region.a[1], dd.region.b[1], length=300)
+    y = range(max(dd.region.a[2], -3), dd.region.b[2], length=300)
     X = repeat(x, 1, length(y))'
     Y = repeat(y, 1, length(x))
 
@@ -189,13 +256,18 @@ dtrunc, logs = loss_based_fit(μ̂, Σ̂, a, b)
     Z = reshape(Z, length(x), length(y))
 
     # Plot the contours
-    contour(x, y, Z, 
-                xlabel="x₁", 
-                ylabel="x₂", 
-                color=:viridis,
-                xlim=(a[1], b[1]),
-                ylim=(a[2], b[2]),
-                aspect_ratio = 1, 
-                legend=false,
-                levels = 30, title = "t = $t, loss = $(round(logs.losses_total[t], digits = 5))")
-end every 1 fps=2
+    return contour(pp,x, y, Z, 
+                    xlabel="x₁", 
+                    ylabel="x₂", 
+                    color=color,
+                    xlim=(a[1], b[1]),
+                    ylim=(max(a[2],-3), b[2]),
+                    aspect_ratio = 1, 
+                    legend=false,
+                    levels = 30,
+                    colorbar = false)
+end
+
+p = plot_dd(dtrunc)
+p = plot_dd(dtrunc_paper, p, :red)
+plot_dd(logs.dists[1], p, :black)
