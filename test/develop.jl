@@ -166,6 +166,7 @@ using LinearAlgebra
 
 
 # μ̂ = [4.5, -1.0]
+
 # Σ̂ = [0.8 0.3;
 #      0.3 0.2];
 # a = [2, -2.0];
@@ -228,9 +229,9 @@ using LinearAlgebra
 # Multivariate Normal Density" (2021) B. G. Manjunath1 and Stefan Wilhelm2
 # Example 1 in that paper
 μ̂ = [-0.1516343, -0.3881151]
-Σ̂ = [0.1630439 00.1613371;
+Σ̂ = [0.1630439 0.1613371;
      0.1613371 0.6062505]
-a = [-1.0, -8]; #this -8 needs to be -inf but causes problems 
+a = [-1.0, -100]; #this -8 needs to be -inf but causes problems 
 b = [0.5, 1];
 
 dtrunc, logs = loss_based_fit(μ̂, Σ̂, a, b)
@@ -271,3 +272,12 @@ end
 p = plot_dd(dtrunc)
 p = plot_dd(dtrunc_paper, p, :red)
 plot_dd(logs.dists[1], p, :black)
+
+# μ̂ = [-0.1516343, -0.3881151]
+# Σ̂ = [0.1630439 0.0;
+#      0.0 0.6062505]
+# a = [-1.0, -8]; #this -8 needs to be -inf but causes problems 
+# b = [0.5, 1];
+# dtrunc, logs = loss_based_fit(μ̂, Σ̂, a, b)
+# @show mean(dtrunc)
+# @show cov(dtrunc)
