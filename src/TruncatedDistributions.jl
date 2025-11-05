@@ -5,6 +5,7 @@ using HCubature
 using LinearAlgebra
 using PDMats
 using ProgressMeter
+using DifferentialEquations
 
 import Distributions: insupport, pdf, moment
 import Base: size, length, show, rand
@@ -41,14 +42,22 @@ export
     TruncatedMvDistributionState,
     μ_gradient,
     U_gradient,
-    loss_based_fit
+    loss_based_fit,
+    truncateDynamicFit,
+    moment_loss,
+    vector_moment_loss,
+    vector_gradient,
+    make_μ_Σ_from_param_vec,
+    make_param_vec_from_μ_Σ,
+    make_param_vec_from_μ_U,
+    n_from_param_size
 
 include("commonTypes.jl")
 include("regions.jl")
 include("commonOperations.jl")
 include("commonCompute.jl")
     include("univariate/distributionsPackageExtensions.jl")
-
+    include("univariate/truncateDynamicFit.jl")
     include("multivariate/boxTruncatedMvNormalRecursiveMomentsState.jl")
     include("multivariate/normal.jl")
     include("multivariate/otherThanNormal.jl")

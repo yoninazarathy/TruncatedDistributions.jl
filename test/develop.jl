@@ -3,6 +3,7 @@ using Distributions
 using HCubature
 using PDMats
 using LinearAlgebra
+using Revise
 
 # using Pkg
 # Pkg.activate(".")
@@ -165,12 +166,7 @@ using LinearAlgebra
 # using Plots
 
 
-# μ̂ = [4.5, -1.0]
 
-# Σ̂ = [0.8 0.3;
-#      0.3 0.2];
-# a = [2, -2.0];
-# b = [6.5, 1];
 
 # dtrunc, logs = loss_based_fit(μ̂, Σ̂, a, b)
 # @show mean(dtrunc)
@@ -202,12 +198,7 @@ using LinearAlgebra
 # end every 1 fps=2
 
 
-# μ̂ = [4.5, -1.0, 2.0]
-# Σ̂ = [0.8 0.1 -0.1;
-#      0.1 1.2 0.1;
-#      -0.1 0.1 0.5]
-# a = [2, -4.0, -4];
-# b = [6.5, 5, 5];
+
 
 # dtrunc, logs = loss_based_fit(μ̂, Σ̂, a, b)
 # @show mean(dtrunc)
@@ -228,52 +219,52 @@ using LinearAlgebra
 # https://cran.r-project.org/web/packages/tmvtnorm/tmvtnorm.pdf and paper "Moments Calculation for the Doubly Truncated
 # Multivariate Normal Density" (2021) B. G. Manjunath1 and Stefan Wilhelm2
 # Example 1 in that paper
-μ̂ = [-0.1516343, -0.3881151]
-Σ̂ = [0.1630439 0.1613371;
-     0.1613371 0.6062505]
-a = [-1.0, -100]; #this -8 needs to be -inf but causes problems 
-b = [0.5, 1];
-
-dtrunc, logs = loss_based_fit(μ̂, Σ̂, a, b)
-@show mean(dtrunc)
-@show cov(dtrunc)
-@show dtrunc.untruncated
-# interesting that we don't get the same original parameters in that paper, this is perhaps a situation of non-uniqueness.
-
-dtrunc_paper = RecursiveMomentsBoxTruncatedMvNormal([0.5, 0.5], PDMat([1.0 1.2 ; 1.2 2.0]), a, b);
-@show mean(dtrunc_paper)
-@show cov(dtrunc_paper)
-
-using Plots
-function plot_dd(dd,pp = plot(), color = :blue)
-     @show dd.untruncated
-    x = range(dd.region.a[1], dd.region.b[1], length=300)
-    y = range(max(dd.region.a[2], -3), dd.region.b[2], length=300)
-    X = repeat(x, 1, length(y))'
-    Y = repeat(y, 1, length(x))
-
-    # Compute the density at each grid point
-    Z = [log(pdf(dd.untruncated, [xi, yi])) for (xi, yi) in zip(vec(X), vec(Y))]
-    Z = reshape(Z, length(x), length(y))
-
-    # Plot the contours
-    return contour(pp,x, y, Z, 
-                    xlabel="x₁", 
-                    ylabel="x₂", 
-                    color=color,
-                    xlim=(a[1], b[1]),
-                    ylim=(max(a[2],-3), b[2]),
-                    aspect_ratio = 1, 
-                    legend=false,
-                    levels = 30,
-                    colorbar = false)
-end
-
-p = plot_dd(dtrunc)
-p = plot_dd(dtrunc_paper, p, :red)
-plot_dd(logs.dists[1], p, :black)
-
 # μ̂ = [-0.1516343, -0.3881151]
+# Σ̂ = [0.1630439 0.1613371;
+#      0.1613371 0.6062505]
+# a = [-1.0, -8]; #this -8 needs to be -inf but causes problems 
+# b = [0.5, 1];
+
+# dtrunc, logs = loss_based_fit(μ̂, Σ̂, a, b)
+# @show mean(dtrunc)
+# @show cov(dtrunc)
+# @show dtrunc.untruncated
+# # interesting that we don't get the same original parameters in that paper, this is perhaps a situation of non-uniqueness.
+
+# dtrunc_paper = RecursiveMomentsBoxTruncatedMvNormal([0.5, 0.5], PDMat([1.0 1.2 ; 1.2 2.0]), a, b);
+# @show mean(dtrunc_paper)
+# @show cov(dtrunc_paper)
+
+# using Plots
+# function plot_dd(dd,pp = plot(), color = :blue)
+#      @show dd.untruncated
+#     x = range(dd.region.a[1], dd.region.b[1], length=300)
+#     y = range(max(dd.region.a[2], -3), dd.region.b[2], length=300)
+#     X = repeat(x, 1, length(y))'
+#     Y = repeat(y, 1, length(x))
+
+#     # Compute the density at each grid point
+#     Z = [log(pdf(dd.untruncated, [xi, yi])) for (xi, yi) in zip(vec(X), vec(Y))]
+#     Z = reshape(Z, length(x), length(y))
+
+#     # Plot the contours
+#     return contour(pp,x, y, Z, 
+#                     xlabel="x₁", 
+#                     ylabel="x₂", 
+#                     color=color,
+#                     xlim=(a[1], b[1]),
+#                     ylim=(max(a[2],-3), b[2]),
+#                     aspect_ratio = 1, 
+#                     legend=false,
+#                     levels = 30,
+#                     colorbar = false)
+# end
+
+# p = plot_dd(dtrunc)
+# p = plot_dd(dtrunc_paper, p, :red)
+# plot_dd(logs.dists[1], p, :black)
+
+# # μ̂ = [-0.1516343, -0.3881151]
 # Σ̂ = [0.1630439 0.0;
 #      0.0 0.6062505]
 # a = [-1.0, -8]; #this -8 needs to be -inf but causes problems 
@@ -281,3 +272,183 @@ plot_dd(logs.dists[1], p, :black)
 # dtrunc, logs = loss_based_fit(μ̂, Σ̂, a, b)
 # @show mean(dtrunc)
 # @show cov(dtrunc)
+
+# μ̂ = [0.1]
+# Σ̂ = fill(0.6^2, 1, 1)
+# a = [-0.9]
+# b = [1.35]
+# dtrunc, logs = loss_based_fit(μ̂, Σ̂, a, b)
+# @show mean(dtrunc)
+# @show sqrt(cov(dtrunc)[1][1])
+# @show dtrunc.untruncated
+
+
+# μ̂ = [-0.1516343, -0.3881151]
+# Σ̂ = [0.1630439 0.1613371;
+#      0.1613371 0.6062505]
+# a = [-1.0, -8]; #this -8 needs to be -inf but causes problems 
+# b = [0.5, 1];
+
+# dtrunc, logs = loss_based_fit(μ̂, Σ̂, a, b)
+# @show mean(dtrunc)
+# @show cov(dtrunc)
+# @show dtrunc.untruncated
+
+#first the uncorollated case
+#better to do this with one-variable approach
+# μ̂ = [-0.1516343, -0.3881151]
+# Σ̂ = [0.1630439 0;
+#      0 0.6062505]
+# a = [-1.0, -5]; #this -3 needs to be -inf but causes problems 
+# b = [0.5, 1];
+
+# @info "First fit (independent)"
+# ind_dtrunc, logs = loss_based_fit(μ̂, Σ̂, a, b, max_iter = 200)
+# @show mean(ind_dtrunc)
+# @show cov(ind_dtrunc)
+# @show ind_dtrunc.untruncated.μ
+# @show ind_dtrunc.untruncated.Σ
+
+# @info "Second fit (independent)"
+# Σ̂ = [0.1630439 0.1613371;
+#      0.1613371 0.6062505]
+# dtrunc, logs = loss_based_fit(μ̂, Σ̂, a, b; μ_init = ind_dtrunc.untruncated.μ, Σ_init = ind_dtrunc.untruncated.Σ.mat)
+# @show mean(dtrunc)
+# @show cov(dtrunc)
+# @show dtrunc.untruncated.μ
+# @show dtrunc.untruncated.Σ
+
+# using PDMats
+# μ̂ = [4.5, -1.0, 2.0]
+# Σ̂ = [0.8 0.1 -0.1;
+#      0.1 1.2 0.1;
+#      -0.1 0.1 0.5]
+# a = [2, -3.0, -4];
+# b = [6.5, 5, 2];
+# init_trunc = RecursiveMomentsBoxTruncatedMvNormal(μ̂, PDMat(Σ̂), a, b; max_moment_levels = 4);
+# @show mean(init_trunc)
+# @show tp(init_trunc)
+
+# μ_g = μ_gradient(init_trunc, mean(init_trunc), μ̂, PDMat(Σ̂));
+# U_g = U_gradient(init_trunc, mean(init_trunc), μ̂, PDMat(Σ̂));
+
+# μ̂ = [0.3, -0.2]
+# Σ̂ = [0.65 0.2; 
+#      0.2 0.4]
+# a = [-1.5, -1.4]
+# b = [1.7, 2.4]
+# @info "without pre-fitting"
+# dtrunc, logs = loss_based_fit(μ̂, Σ̂, a, b)
+# @show mean(dtrunc)
+# @show cov(dtrunc)
+# @show tp(dtrunc)
+# @show dtrunc.untruncated;
+
+
+# @info "with pre-fitting"
+# #Starting point for optimization comes from LiquetNazarathy paper (2015)
+# mF1, sF1 =     truncateDynamicFit(μ̂[1],sqrt(Σ̂[1,1]),(a[1],b[1]))
+# mF2, sF2 =     truncateDynamicFit(μ̂[2],sqrt(Σ̂[2,2]),(a[2],b[2]))
+# @show (mF1,sF1^2)
+# @show (mF2,sF2^2)
+# μ0 = [mF1, mF2];
+# Σ0 = [sF1^2 0 ; 0 sF2^2]
+
+# dtrunc, logs = loss_based_fit(μ̂, Σ̂, a, b;μ_init = μ0, Σ_init = Σ0)
+# @show mean(dtrunc)
+# @show cov(dtrunc)
+# @show tp(dtrunc)
+# @show dtrunc.untruncated;
+
+μ̂ = [4.5, -1.0]
+
+Σ̂ = [0.8 0.3
+     0.3 0.2];
+a = [2, -2.0];
+b = [6.5, 1];
+
+using PRIMA
+@info "PRIMA"
+prima_result, prima_info = newuoa((v)->vector_moment_loss(v, a, b, μ̂, Σ̂), make_param_vec_from_μ_Σ(μ̂, Σ̂))
+@show prima_info
+μ_prima, Σ_prima = make_μ_Σ_from_param_vec(prima_result)
+dtrunc_prima = RecursiveMomentsBoxTruncatedMvNormal(μ_prima, PDMat(Σ_prima),a,b)
+@show mean(dtrunc_prima)
+@show cov(dtrunc_prima)
+@show tp(dtrunc_prima)
+
+using Optim
+@info "no gradient supplied - optim"
+optim_result = optimize((v)->vector_moment_loss(v, a, b, μ̂, Σ̂), 
+                        make_param_vec_from_μ_Σ(μ̂, Σ̂),
+                        LBFGS(),
+                        Optim.Options(show_trace=true,time_limit=10))# DOESN'T WORK:,autodiff = :forward)
+μ_optim, Σ_optim = make_μ_Σ_from_param_vec(optim_result.minimizer)
+dtrunc_optim = RecursiveMomentsBoxTruncatedMvNormal(μ_optim, PDMat(Σ_optim),a,b)
+@show mean(dtrunc_optim)
+@show cov(dtrunc_optim)
+
+using Optim
+@info "gradient Optim - no standardization" 
+optim_grad_result = optimize((v)->vector_moment_loss(v, a, b, μ̂, Σ̂), 
+                                (v)->vector_gradient(v, a, b, μ̂, Σ̂),
+                                make_param_vec_from_μ_Σ(μ̂, Σ̂),
+                              #   LBFGS(), #doesn't work 
+                                Adam(alpha=0.01),#, beta_mean=0.0, beta_var=0.0),
+                                Optim.Options(show_trace=true, time_limit =50),#, f_abstol = 1e-6),
+                              inplace = false)
+μ_optim_grad, Σ_optim_grad = make_μ_Σ_from_param_vec(optim_grad_result.minimizer)
+dtrunc_optim_grad = RecursiveMomentsBoxTruncatedMvNormal(μ_optim_grad, PDMat(Σ_optim_grad),a,b)
+@show mean(dtrunc_optim_grad)
+@show cov(dtrunc_optim_grad)
+
+
+@info "standardization"
+std_devs = sqrt.(diag(Σ̂))
+μ̂0 = zeros(2);
+Σ̂0 =  PDMat(Σ̂ ./ (std_devs * std_devs'))
+a0 = (a - μ̂) ./ std_devs
+b0 = (b - μ̂) ./ std_devs
+prima_result0, prima_info0 = newuoa((v)->vector_moment_loss(v, a0, b0, μ̂0, Σ̂0), make_param_vec_from_μ_Σ(μ̂0, Σ̂0))
+# FAILS (or maybe not - check-above)
+optim_result0 = optimize((v)->vector_moment_loss(v, a0, b0, μ̂0, Σ̂0), 
+                        make_param_vec_from_μ_Σ(μ̂0, Σ̂0),
+                        LBFGS(),        
+                        Optim.Options(show_trace=true,time_limit=10))#f_abstol = 1e-5))
+μ_optim0, Σ_optim0 = make_μ_Σ_from_param_vec(optim_result0.minimizer)
+dtrunc_optim0 = RecursiveMomentsBoxTruncatedMvNormal(μ_optim0, PDMat(Σ_optim0),a0,b0)
+@show mean(dtrunc_optim0)
+@show cov(dtrunc_optim0)
+μ_optim = μ_optim0 .*std_devs + μ̂
+Σ_optim = PDMat(Σ_optim0 .* (std_devs * std_devs')) #back to original coordinates
+dtrunc_optim = RecursiveMomentsBoxTruncatedMvNormal(μ_optim, PDMat(Σ_optim),a,b)
+@show mean(dtrunc_optim)
+@show cov(dtrunc_optim)
+@show tp(dtrunc_optim0)
+@show tp(dtrunc_optim)
+
+
+std_devs = sqrt.(diag(Σ̂))
+μ̂0 = zeros(2);
+Σ̂0 =  PDMat(Σ̂ ./ (std_devs * std_devs'))
+a0 = (a - μ̂) ./ std_devs
+b0 = (b - μ̂) ./ std_devs
+optim_result0 = optimize((v)->vector_moment_loss(v, a0, b0, μ̂0, Σ̂0), 
+                         (v)->vector_gradient(v, a, b, μ̂0, Σ̂0),
+                                make_param_vec_from_μ_Σ(μ̂0, Σ̂0),
+                              #   LBFGS(),
+                                Adam(alpha=0.01),# beta_mean=0.0, beta_var=0.0),
+                                # GradientDescent(alpha=0.1),
+                                Optim.Options(show_trace=true, f_abstol = 1e-6),
+                                inplace = false)
+μ_optim0, Σ_optim0 = make_μ_Σ_from_param_vec(optim_result0.minimizer)
+dtrunc_optim0 = RecursiveMomentsBoxTruncatedMvNormal(μ_optim0, PDMat(Σ_optim0),a0,b0)
+@show mean(dtrunc_optim0)
+@show cov(dtrunc_optim0)
+μ_optim = μ_optim0 .*std_devs + μ̂
+Σ_optim = PDMat(Σ_optim0 .* (std_devs * std_devs')) #back to original coordinates
+dtrunc_optim = RecursiveMomentsBoxTruncatedMvNormal(μ_optim, PDMat(Σ_optim),a,b)
+@show mean(dtrunc_optim)
+@show cov(dtrunc_optim)
+@show tp(dtrunc_optim0)
+@show tp(dtrunc_optim)

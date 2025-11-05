@@ -121,7 +121,6 @@ function U_gradient(    d::RecursiveMomentsBoxTruncatedMvNormal,
         for j in (i+1):n
             total34 += I3(i,j) .* I4(i,j)
         end
-    end
-                
+    end                
     return sum([I1(i) .* I2(i) + I5(i) .* I6(i) for i in 1:n]) + 2*total34
 end
