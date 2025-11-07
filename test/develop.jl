@@ -337,12 +337,12 @@ using Revise
 #      0.2 0.4]
 # a = [-1.5, -1.4]
 # b = [1.7, 2.4]
-# @info "without pre-fitting"
-# dtrunc, logs = loss_based_fit(μ̂, Σ̂, a, b)
-# @show mean(dtrunc)
-# @show cov(dtrunc)
-# @show tp(dtrunc)
-# @show dtrunc.untruncated;
+@info "without pre-fitting"
+dtrunc, logs = loss_based_fit(μ̂, Σ̂, a, b)
+@show mean(dtrunc)
+@show cov(dtrunc)
+@show tp(dtrunc)
+@show dtrunc.untruncated;
 
 
 # @info "with pre-fitting"
@@ -369,7 +369,7 @@ b = [6.5, 1];
 
 using PRIMA
 @info "PRIMA"
-prima_result, prima_info = newuoa((v)->vector_moment_loss(v, a, b, μ̂, Σ̂), make_param_vec_from_μ_Σ(μ̂, Σ̂))
+@time prima_result, prima_info = newuoa((v)->vector_moment_loss(v, a, b, μ̂, Σ̂), make_param_vec_from_μ_Σ(μ̂, Σ̂))
 @show prima_info
 μ_prima, Σ_prima = make_μ_Σ_from_param_vec(prima_result)
 dtrunc_prima = RecursiveMomentsBoxTruncatedMvNormal(μ_prima, PDMat(Σ_prima),a,b)
@@ -379,8 +379,8 @@ dtrunc_prima = RecursiveMomentsBoxTruncatedMvNormal(μ_prima, PDMat(Σ_prima),a,
 
 using Optim
 @info "no gradient supplied - optim"
-optim_result = optimize((v)->vector_moment_loss(v, a, b, μ̂, Σ̂), 
-                        make_param_vec_from_μ_Σ(μ̂, Σ̂),
+optim_result = optimize((v)->vector_moment_loss(v, a, b, μ̂, Σ̂),  #function
+                        make_param_vec_from_μ_Σ(μ̂, Σ̂), #initial value
                         LBFGS(),
                         Optim.Options(show_trace=true,time_limit=10))# DOESN'T WORK:,autodiff = :forward)
 μ_optim, Σ_optim = make_μ_Σ_from_param_vec(optim_result.minimizer)
@@ -390,11 +390,11 @@ dtrunc_optim = RecursiveMomentsBoxTruncatedMvNormal(μ_optim, PDMat(Σ_optim),a,
 
 using Optim
 @info "gradient Optim - no standardization" 
-optim_grad_result = optimize((v)->vector_moment_loss(v, a, b, μ̂, Σ̂), 
-                                (v)->vector_gradient(v, a, b, μ̂, Σ̂),
-                                make_param_vec_from_μ_Σ(μ̂, Σ̂),
-                              #   LBFGS(), #doesn't work 
-                                Adam(alpha=0.01),#, beta_mean=0.0, beta_var=0.0),
+optim_grad_result = optimize((v)->vector_moment_loss(v, a, b, μ̂, Σ̂),  #function
+                                (v)->vector_gradient(v, a, b, μ̂, Σ̂), #gradient
+                                make_param_vec_from_μ_Σ(μ̂, Σ̂), #initial value
+                                LBFGS(), #doesn't work 
+                                # Adam(alpha=0.01),#, beta_mean=0.0, beta_var=0.0),
                                 Optim.Options(show_trace=true, time_limit =50),#, f_abstol = 1e-6),
                               inplace = false)
 μ_optim_grad, Σ_optim_grad = make_μ_Σ_from_param_vec(optim_grad_result.minimizer)
@@ -452,3 +452,17 @@ dtrunc_optim = RecursiveMomentsBoxTruncatedMvNormal(μ_optim, PDMat(Σ_optim),a,
 @show cov(dtrunc_optim)
 @show tp(dtrunc_optim0)
 @show tp(dtrunc_optim)
+
+
+# Just playing with LBFGS
+@info "no gradient"
+optim_result = optimize((x)->(x-[1,1])'*(x-[1,1]),[10.0,10],LBFGS(),Optim.Options(show_trace=true)) # no graident
+@show optim_result.minimizer
+
+@info "yes gradient"
+optim_result = optimize((x)->(x-[1,1])'*(x-[1,1]),(x)->2(x .- 1), [10.,10], LBFGS(),Optim.Options(show_trace=true), inplace = false)
+@show optim_result.minimizer
+
+@info "yes gradient - but slightly wrong"
+optim_result = optimize((x)->(x-[1,1])'*(x-[1,1]),(x)->2.2(x .- 1), [10.,10], LBFGS(),Optim.Options(show_trace=true), inplace = false)
+@show optim_result.minimizer
