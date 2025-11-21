@@ -67,6 +67,19 @@ function moment_loss(dist::RecursiveMomentsBoxTruncatedMvNormal, μ̂::AbstractV
     return 0.5*(norm(mean(dist) - μ̂)^2 + norm(cov(dist) - Σ̂)^2)
 end
 
+function approximate_moment_loss(d::RecursiveMomentsBoxTruncatedMvNormal,
+                                μA::Vector{Float64},
+                                μ̂::AbstractVector{Float64},  
+                                Σ̂::AbstractMatrix{Float64})
+    n = length(d)
+    m(inds) = raw_moment_from_indices(d, inds)
+    m0 = m(Int[])
+    term1 = sum(abs2, m([i]) - m0*μ̂[i] for i in 1:n)
+    term2 = sum(abs2, [m([i,j]) - m([i])*μA[j] - m([j])*μA[i] + m0*(μA[i]*μA[j] - Σ̂[i,j])  for i in 1:n, j in 1:n])
+    # @show term1, term2
+    return (term1 + term2)/2
+end
+
 function vector_moment_loss(param_vec::Vector{Float64}, 
                             a,
                             b, 
@@ -78,14 +91,25 @@ function vector_moment_loss(param_vec::Vector{Float64},
 end
 
 
+function approximate_vector_moment_loss(param_vec::Vector{Float64}, 
+                            a,
+                            b,
+                            μA::Vector{Float64}, 
+                            μ̂::AbstractVector{Float64}, 
+                            Σ̂::AbstractMatrix{Float64})
+    μ, Σ = make_μ_Σ_from_param_vec(param_vec)
+    dist = RecursiveMomentsBoxTruncatedMvNormal(μ, PDMat(Σ), a, b)
+    return approximate_moment_loss(dist, μA, μ̂, Σ̂)
+end
+
 function vector_gradient(   param_vec::Vector{Float64},
                             a,
-                            b, 
+                            b,
+                            μA::AbstractVector{Float64}, 
                             μ̂::AbstractVector{Float64}, 
                             Σ̂::AbstractMatrix{Float64})
     μ, Σ = make_μ_Σ_from_param_vec(param_vec)
     dist = RecursiveMomentsBoxTruncatedMvNormal(μ, PDMat(Σ), a, b; max_moment_levels = 4)
-    μA = mean(dist)
     μ_grad = μ_gradient(dist, μA, μ̂, PDMat(Σ̂))'
     U_grad = U_gradient(dist, μA, μ̂, PDMat(Σ̂))
     make_param_vec_from_μ_U(μ_grad, U_grad)
