@@ -7,6 +7,8 @@ using PDMats
 using ProgressMeter
 using DifferentialEquations
 using Parameters
+using PRIMA
+using Optim
 
 import Distributions: insupport, pdf, moment
 import Base: size, length, show, rand
@@ -57,7 +59,9 @@ export
     get_example,
     get_num_examples,
     get_example_sizes,
-    dist_from_example
+    dist_from_example,
+    correct_to_moments_with_prima,
+    correct_to_moments_with_optim
 
 include("commonTypes.jl")
 include("regions.jl")
@@ -73,6 +77,7 @@ include("commonCompute.jl")
 
     include("parameterMatching/dynamicUnivariateFit.jl")
     include("parameterMatching/parameter_gradients.jl")
+    include("parameterMatching/correct_to_moments.jl")
 
 include("parameterMatching/lossMultivariateFit.jl")
 

@@ -1,8 +1,8 @@
 function loss_based_fit(μ̂::Vector{Float64}, Σ̂::Matrix{Float64}, a::Vector{Float64}, b::Vector{Float64}; 
                         μ_init::Vector{Float64} = μ̂, 
                         Σ_init::Matrix{Float64} = Σ̂,
-                        α = 0.1,
-                        min_grad_norm = 1e-4,
+                        α = 0.01,
+                        min_grad_norm = 1e-2,
                         max_iter = Inf)
     n = length(μ̂)
     n1, m1 = size(Σ̂)
