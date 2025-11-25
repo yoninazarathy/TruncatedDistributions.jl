@@ -17,6 +17,23 @@ A Box Truncated normal distribution with a recursive moment computation implemen
 """
 const RecursiveMomentsBoxTruncatedMvNormal = TruncatedMvDistribution{MvNormal,BoxTruncationRegion,BoxTruncatedMvNormalRecursiveMomentsState}
 
+function Base.show(io::IO, d::RecursiveMomentsBoxTruncatedMvNormal) 
+    println(io, "Truncated Multivariate Normal, n=$(length(d))")
+    println(io, "μ:\n $(d.untruncated.μ)")
+    println(io, "Σ:")
+        show(io, "text/plain", d.untruncated.Σ)
+    println(io)
+    println(io, "a:\n $(d.region.a)")
+    println(io, "b:\n $(d.region.b)")
+    println(io, "tp:\n $(round(tp(d), digits = 5))")
+    println(io, "Mean:\n $(round.(mean(d), digits = 5))")
+    println(io, "Cov:")
+        show(io, "text/plain", round.(cov(d), digits = 5))
+
+end
+
+
+
 function RecursiveMomentsBoxTruncatedMvNormal(  μₑ::Vector{Float64},
                                                 Σₑ::PDMat, 
                                                 a::Vector{Float64}, 

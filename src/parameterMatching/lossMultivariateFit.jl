@@ -118,8 +118,10 @@ end
 function make_μ_Σ_from_param_vec(param_vec)
     n = n_from_param_size(length(param_vec))
     μ = param_vec[1:n]
-    U = [param_vec[3] param_vec[4]; 
-         0.0          param_vec[5]] #do this for general n.
+    inds = [CartesianIndex(i,j) for i=1:n for j=i:n]
+    U = zeros(n,n)
+    U[inds] = param_vec[(n+1):end]
+    U = UpperTriangular(U)
     Ui = inv(U)
     Σ = Ui*Ui'  #retrieve the covaranice from the upper triangular matrix
     return μ, Σ
@@ -128,11 +130,15 @@ end
 function make_param_vec_from_μ_Σ(μ, Σ)
     F = cholesky(inv(Σ))
     U = F.U
-    vcat(μ,U[1,1],U[1,2],U[2,2]) #first two coordinates are the mean and the last three coordinates are the factorized covariance
+    n = size(U)[1]
+    inds = [CartesianIndex(i,j) for i=1:n for j=i:n]
+    vcat(μ, U[inds]) #first two coordinates are the mean and the remaining coordinates are the factorized covariance
 end
 
 function make_param_vec_from_μ_U(μ, U)
-    vcat(μ,U[1,1],U[1,2],U[2,2]) #first two coordinates are the mean and the last three coordinates are the factorized covariance
+    n = size(U)[1]
+    inds = [CartesianIndex(i,j) for i=1:n for j=i:n]
+    vcat(μ,U[inds]) #first two coordinates are the mean and the remaining coordinates are the factorized covariance
 end
 
 #n + n*(n+1)/2 = T

@@ -319,15 +319,15 @@ using Revise
 # @show dtrunc.untruncated.Σ
 
 # using PDMats
-# μ̂ = [4.5, -1.0, 2.0]
-# Σ̂ = [0.8 0.1 -0.1;
-#      0.1 1.2 0.1;
-#      -0.1 0.1 0.5]
-# a = [2, -3.0, -4];
-# b = [6.5, 5, 2];
-# init_trunc = RecursiveMomentsBoxTruncatedMvNormal(μ̂, PDMat(Σ̂), a, b; max_moment_levels = 4);
-# @show mean(init_trunc)
-# @show tp(init_trunc)
+μ̂ = [4.5, -1.0, 2.0]
+Σ̂ = [0.8 0.1 -0.1;
+     0.1 1.2 0.1;
+     -0.1 0.1 0.5]
+a = [2, -3.0, -4];
+b = [6.5, 5, 2];
+init_trunc = RecursiveMomentsBoxTruncatedMvNormal(μ̂, PDMat(Σ̂), a, b; max_moment_levels = 4);
+@show mean(init_trunc)
+@show tp(init_trunc)
 
 # μ_g = μ_gradient(init_trunc, mean(init_trunc), μ̂, PDMat(Σ̂));
 # U_g = U_gradient(init_trunc, mean(init_trunc), μ̂, PDMat(Σ̂));
@@ -360,15 +360,15 @@ using Revise
 # @show tp(dtrunc)
 # @show dtrunc.untruncated;
 
-μ̂ = [4.5, -1.0]
+# μ̂ = [4.5, -1.0]
 
-Σ̂ = [0.8 0.3
-     0.3 0.2];
-a = [3.5, -2.0];
-b = [6.5, 1];
-d_init = RecursiveMomentsBoxTruncatedMvNormal(μ̂, PDMat(Σ̂),a,b)
-μA = mean(d_init)
-@show tp(d_init)
+# Σ̂ = [0.8 0.3
+#      0.3 0.2];
+# a = [3.5, -2.0];
+# b = [6.5, 1];
+# d_init = RecursiveMomentsBoxTruncatedMvNormal(μ̂, PDMat(Σ̂),a,b)
+# μA = mean(d_init)
+# @show tp(d_init)
 
 # using PRIMA
 # @info "PRIMA"
@@ -380,41 +380,41 @@ d_init = RecursiveMomentsBoxTruncatedMvNormal(μ̂, PDMat(Σ̂),a,b)
 # @show cov(dtrunc_prima)
 # @show tp(dtrunc_prima)
 
-# using Optim
-# @info "no gradient supplied - optim"
+using Optim
+@info "no gradient supplied - optim"
 # optim_result = optimize((v)->vector_moment_loss(v, a, b, μ̂, Σ̂),  #function
 #                         make_param_vec_from_μ_Σ(μ̂, Σ̂), #initial value
 #                         LBFGS(),
-#                         Optim.Options(show_trace=true,time_limit=10))# DOESN'T WORK:,autodiff = :forward)
+#                         Optim.Options(show_trace=true, time_limit=10))# DOESN'T WORK:,autodiff = :forward)
 # μ_optim, Σ_optim = make_μ_Σ_from_param_vec(optim_result.minimizer)
 # dtrunc_optim = RecursiveMomentsBoxTruncatedMvNormal(μ_optim, PDMat(Σ_optim),a,b)
 # @show mean(dtrunc_optim)
 # @show cov(dtrunc_optim)
 
-using Optim
-# @info "gradient Optim - no standardization" 
-init_v = make_param_vec_from_μ_Σ(μ̂, Σ̂)
-for i in 1:3
-  @info "Iteration $i"
-  global μA, init_v
-  @show init_v
-  optim_grad_result = optimize((v)->approximate_vector_moment_loss(v, a, b, μA, μ̂, Σ̂),  #function
-                                  (v)->vector_gradient(v, a, b, μA, μ̂, Σ̂), #gradient
-                                  init_v, #initial value
-                                  LBFGS(), #doesn't work 
-                                  # Adam(alpha=0.01),#, beta_mean=0.0, beta_var=0.0),
-                                  Optim.Options(show_trace=true, iterations = 10),#g_calls_limit = 1), #time_limit =50),#, f_abstol = 1e-6),
-                                inplace = false)
-  μ_optim_grad, Σ_optim_grad = make_μ_Σ_from_param_vec(optim_grad_result.minimizer)
-  dtrunc_optim_grad = RecursiveMomentsBoxTruncatedMvNormal(μ_optim_grad, PDMat(Σ_optim_grad),a,b)
-  @show moment_loss(dtrunc_optim_grad, μ̂, Σ̂)
-  @show approximate_moment_loss(dtrunc_optim_grad, μA, μ̂, Σ̂)
-  @show μA
-  μA = mean(dtrunc_optim_grad)
-  @show μA
-  init_v = make_param_vec_from_μ_Σ(μ_optim_grad, Σ_optim_grad)
-  @show approximate_vector_moment_loss(init_v, a, b, μA, μ̂, Σ̂)
-end
+# using Optim
+# # @info "gradient Optim - no standardization" 
+# init_v = make_param_vec_from_μ_Σ(μ̂, Σ̂)
+# for i in 1:3
+#   @info "Iteration $i"
+#   global μA, init_v
+#   @show init_v
+#   optim_grad_result = optimize((v)->approximate_vector_moment_loss(v, a, b, μA, μ̂, Σ̂),  #function
+#                                   (v)->vector_gradient(v, a, b, μA, μ̂, Σ̂), #gradient
+#                                   init_v, #initial value
+#                                   LBFGS(), #doesn't work 
+#                                   # Adam(alpha=0.01),#, beta_mean=0.0, beta_var=0.0),
+#                                   Optim.Options(show_trace=true, iterations = 10),#g_calls_limit = 1), #time_limit =50),#, f_abstol = 1e-6),
+#                                 inplace = false)
+#   μ_optim_grad, Σ_optim_grad = make_μ_Σ_from_param_vec(optim_grad_result.minimizer)
+#   dtrunc_optim_grad = RecursiveMomentsBoxTruncatedMvNormal(μ_optim_grad, PDMat(Σ_optim_grad),a,b)
+#   @show moment_loss(dtrunc_optim_grad, μ̂, Σ̂)
+#   @show approximate_moment_loss(dtrunc_optim_grad, μA, μ̂, Σ̂)
+#   @show μA
+#   μA = mean(dtrunc_optim_grad)
+#   @show μA
+#   init_v = make_param_vec_from_μ_Σ(μ_optim_grad, Σ_optim_grad)
+#   @show approximate_vector_moment_loss(init_v, a, b, μA, μ̂, Σ̂)
+# end
 # @show mean(dtrunc_optim_grad)
 # @show cov(dtrunc_optim_grad)
 

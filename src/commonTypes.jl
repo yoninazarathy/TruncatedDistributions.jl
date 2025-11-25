@@ -74,6 +74,8 @@ end
 
 # function Base.show(io::IO, d::BoxTruncatedMvNormalRecursiveMomentsState) 
 #     println(io, "Box Truncated MvNormal")
+# end
+#     println(io, "Box Truncated MvNormal")
 #     println(io, "n = $(d.n)")
 #     println(io, "μₑ = $(d.μₑ)" )
 #     println(io, "Σₑ = $(d.Σₑ)" )

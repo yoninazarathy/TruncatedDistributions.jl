@@ -6,6 +6,7 @@ using LinearAlgebra
 using PDMats
 using ProgressMeter
 using DifferentialEquations
+using Parameters
 
 import Distributions: insupport, pdf, moment
 import Base: size, length, show, rand
@@ -52,7 +53,11 @@ export
     make_μ_Σ_from_param_vec,
     make_param_vec_from_μ_Σ,
     make_param_vec_from_μ_U,
-    n_from_param_size
+    n_from_param_size,
+    get_example,
+    get_num_examples,
+    get_example_sizes,
+    dist_from_example
 
 include("commonTypes.jl")
 include("regions.jl")
@@ -64,6 +69,7 @@ include("commonCompute.jl")
     include("multivariate/normal.jl")
     include("multivariate/otherThanNormal.jl")
     include("multivariate/boxTruncatedMvNormalRecursiveMoments.jl")
+    include("multivariate/examples.jl")
 
     include("parameterMatching/dynamicUnivariateFit.jl")
     include("parameterMatching/parameter_gradients.jl")
