@@ -150,6 +150,53 @@ function n_from_param_size(param_size::Integer)
     return Int((-3 + sqrt(9+8param_size))/2)
 end
 
+function find_pair_with_worst_loss(μ, Σ, μ̂, Σ̂, a, b)
+    n = length(μ)
+    pair_sets = collect(combinations(1:n, 2))
+    pair_losses = zeros(length(pair_sets))
+    for (i,s) in enumerate(pair_sets)
+        μ_s = μ[s]
+        Σ_s = Σ[s,s]
+        μ̂_s = μ̂[s]
+        Σ̂_s = Σ̂[s,s]
+        a_s = a[s]
+        b_s = b[s];
+        dtrunc = RecursiveMomentsBoxTruncatedMvNormal(μ_s, PDMat(Σ_s), a_s, b_s)
+        pair_losses[i] = moment_loss(dtrunc, μ̂_s, Σ̂_s)
+    end
+    return pair_sets[argmax(pair_losses)]
+end
 
 
+function pair_gradient_descent(μ̂, Σ̂, a, b)    
+    μ = copy(μ̂) 
+    Σ = copy(Σ̂)
 
+    total_loss = []
+    dtrunc_all_coords = RecursiveMomentsBoxTruncatedMvNormal(μ, PDMat(Σ),a,b)
+    for i in 1:300
+        current_pair = find_pair_with_worst_loss(μ, Σ, μ̂, Σ̂, a, b)
+        @info "Starting iteration $i on set $current_pair"
+
+        # #create the 2x2 problem
+        μ̂_current = μ̂[current_pair]
+        Σ̂_current = Σ̂[current_pair, current_pair]
+        a_current = a[current_pair]
+        b_current = b[current_pair];
+
+        #do a few gradient descent steps on the 2x2 problem
+        dtrunc, logs = loss_based_fit(μ̂_current, Σ̂_current, a_current, b_current; 
+                                        μ_init = μ[current_pair],
+                                        Σ_init = Σ[current_pair, current_pair],
+                                        max_iter=20, α = 0.01);        
+        μ[current_pair] = dtrunc.untruncated.μ
+        Σ[current_pair, current_pair] = dtrunc.untruncated.Σ
+
+
+        dtrunc_all_coords = RecursiveMomentsBoxTruncatedMvNormal(μ, PDMat(Σ),a,b)
+        all_coordinates_loss = moment_loss(dtrunc_all_coords, μ̂, Σ̂)
+        @show all_coordinates_loss
+        push!(total_loss, all_coordinates_loss)
+    end
+    return dtrunc_all_coords
+end

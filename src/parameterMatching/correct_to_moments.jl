@@ -17,3 +17,10 @@ function correct_to_moments_with_optim(     d::RecursiveMomentsBoxTruncatedMvNor
     μ_optim, Σ_optim = make_μ_Σ_from_param_vec(optim_result.minimizer)
     return RecursiveMomentsBoxTruncatedMvNormal(μ_optim, PDMat(Σ_optim),d.region.a, d.region.b)
 end
+
+function correct_to_moments_with_pair_gradient_descent( d::RecursiveMomentsBoxTruncatedMvNormal, 
+                                                        μ̂::AbstractVector{Float64},
+                                                        Σ̂::AbstractMatrix{Float64})
+    return pair_gradient_descent(μ̂, Σ̂, d.region.a, d.region.b)
+end
+

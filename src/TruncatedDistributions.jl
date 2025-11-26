@@ -9,6 +9,7 @@ using DifferentialEquations
 using Parameters
 using PRIMA
 using Optim
+using Combinatorics
 
 import Distributions: insupport, pdf, moment
 import Base: size, length, show, rand
@@ -61,7 +62,10 @@ export
     get_example_sizes,
     dist_from_example,
     correct_to_moments_with_prima,
-    correct_to_moments_with_optim
+    correct_to_moments_with_optim,
+    correct_to_moments_with_pair_gradient_descent,
+    find_pair_with_worst_loss,
+    pair_gradient_descent
 
 include("commonTypes.jl")
 include("regions.jl")
