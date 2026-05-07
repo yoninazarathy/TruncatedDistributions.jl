@@ -48,7 +48,7 @@ function loss_based_fit(μ̂::Vector{Float64}, Σ̂::Matrix{Float64}, a::Vector{
         loss_Σ = norm(cov(dtrunc) - Σ̂0)
         loss_total = loss_μ + loss_Σ
         grad_norm_sum = norm(μ_grad) + norm(U_grad)
-        @show i, loss_total, grad_norm_sum#, (loss_μ, loss_Σ)
+        # @show i, loss_total, grad_norm_sum#, (loss_μ, loss_Σ)
         push!(losses_total, loss_total)
         push!(losses_μ, loss_μ)
         push!(losses_Σ, loss_Σ)
@@ -174,7 +174,7 @@ function pair_gradient_descent(μ̂, Σ̂, a, b)
 
     total_loss = []
     dtrunc_all_coords = RecursiveMomentsBoxTruncatedMvNormal(μ, PDMat(Σ),a,b)
-    for i in 1:300
+    for i in 1:500
         current_pair = find_pair_with_worst_loss(μ, Σ, μ̂, Σ̂, a, b)
         @info "Starting iteration $i on set $current_pair"
 
@@ -188,7 +188,7 @@ function pair_gradient_descent(μ̂, Σ̂, a, b)
         dtrunc, logs = loss_based_fit(μ̂_current, Σ̂_current, a_current, b_current; 
                                         μ_init = μ[current_pair],
                                         Σ_init = Σ[current_pair, current_pair],
-                                        max_iter=20, α = 0.01);        
+                                        max_iter=max(3,round(Int,300/i^2)), α = 0.05);        
         μ[current_pair] = dtrunc.untruncated.μ
         Σ[current_pair, current_pair] = dtrunc.untruncated.Σ
 
@@ -196,6 +196,9 @@ function pair_gradient_descent(μ̂, Σ̂, a, b)
         dtrunc_all_coords = RecursiveMomentsBoxTruncatedMvNormal(μ, PDMat(Σ),a,b)
         all_coordinates_loss = moment_loss(dtrunc_all_coords, μ̂, Σ̂)
         @show all_coordinates_loss
+        if all_coordinates_loss < 1e-3
+            break
+        end
         push!(total_loss, all_coordinates_loss)
     end
     return dtrunc_all_coords
