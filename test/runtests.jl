@@ -1,70 +1,65 @@
 using TruncatedDistributions
 using Test
 using Distributions
-using HCubature
 using PDMats
+using LinearAlgebra
+using SpecialFunctions: erf
 
-include("exampleDists.jl")
+import TruncatedDistributions: hcubature_inf
 
-N_for_random = 10^6
+@testset "TruncatedDistributions" begin
 
-function test_distributions(dist_gen)
-       d, r, properties = dg()
+    @testset "hcubature_inf — closed-form integrals" begin
 
-       #Test the BasicBoxTruncatedMvNormal
-       d_basic = BasicBoxTruncatedMvNormal(d.μ, d.Σ, r.a, r.b)
-       moment_powers = properties["some_moment_to_check"] #specific array of moment powers to check
+        atol = 1e-6
 
-       @show length(d_basic)
-       @show tp(d_basic)
-       @show mean(d_basic)
-       @show moment(d_basic, moment_powers)
+        # ----- 1D, finite (must agree with hcubature) -----
+        @test hcubature_inf(x -> 1.0,           [0.0], [1.0])[1] ≈ 1.0       atol = atol
+        @test hcubature_inf(x -> exp(-x[1]^2),  [-1.0], [1.0])[1] ≈ √π * erf(1.0) atol = atol
 
-       @test length(d_basic) == properties["length"]
-       @test tp(d_basic) ≈ properties["tp"]
-       @test mean(d_basic) ≈ properties["mean"]
-       #todo - test cov
-       @test moment(d_basic, moment_powers) ≈ properties["some_moment_to_check_value"]
+        # ----- 1D, doubly infinite -----
+        # ∫_{-∞}^{∞} e^{-x²} dx = √π
+        @test hcubature_inf(x -> exp(-x[1]^2), [-Inf], [Inf])[1] ≈ √π atol = atol
+        # standard normal pdf integrates to 1
+        @test hcubature_inf(x -> pdf(Normal(), x[1]), [-Inf], [Inf])[1] ≈ 1.0 atol = atol
 
-       #Test the RecursiveMomentsBoxTruncatedMvNormal class
-       d_recursive = RecursiveMomentsBoxTruncatedMvNormal(d.μ, d.Σ, r.a, r.b)
-       @test length(d_recursive) == properties["length"]
-       @test tp(d_recursive) ≈ properties["tp"]
-       @test mean(d_recursive) ≈ properties["mean"]
-       #todo - test cov
-       @test moment(d_recursive, moment_powers) ≈ properties["some_moment_to_check_value"]
+        # ----- 1D, half-infinite -----
+        # ∫_{0}^{∞} e^{-x} dx = 1
+        @test hcubature_inf(x -> exp(-x[1]), [0.0], [Inf])[1] ≈ 1.0 atol = atol
+        # ∫_{-∞}^{0} e^{x} dx = 1
+        @test hcubature_inf(x -> exp(x[1]),  [-Inf], [0.0])[1] ≈ 1.0 atol = atol
+        # ∫_{a}^{∞} e^{-x} dx = e^{-a}
+        @test hcubature_inf(x -> exp(-x[1]), [2.0], [Inf])[1] ≈ exp(-2.0) atol = atol
 
-       #Estimate the moments via Monte Carlo and print
-       moment_func(x) = prod(x[i]^moment_powers[i] for i in 1:length(d_recursive))
-       estimated = mean(moment_func.([rand(d_recursive) for _ in 1:N_for_random]))
-       specified = properties["some_moment_to_check_value"]
-       @show estimated, specified
+        # ----- 2D, doubly infinite -----
+        # ∫∫ N(0,I) = 1
+        Σ = [1.0 0.3; 0.3 1.0]
+        d = MvNormal([0.0, 0.0], Σ)
+        @test hcubature_inf(x -> pdf(d, collect(x)), [-Inf, -Inf], [Inf, Inf])[1] ≈ 1.0 atol = 1e-5
+
+        # ----- 2D, mixed (one half-infinite, one finite) -----
+        # ∫_{-1}^{1} ∫_{0}^{∞} e^{-x} dx dy = 2
+        @test hcubature_inf(x -> exp(-x[1]), [0.0, -1.0], [Inf, 1.0])[1] ≈ 2.0 atol = atol
+
+        # ----- 2D, mixed (one half-infinite, one doubly infinite) -----
+        # ∫_{-∞}^{∞} ∫_{0}^{∞} e^{-x} N(y;0,1) dy dx = 1
+        @test hcubature_inf(x -> exp(-x[1]) * pdf(Normal(), x[2]),
+                            [0.0, -Inf], [Inf, Inf])[1] ≈ 1.0 atol = atol
+    end
+
+    @testset "Truncated MvNormal — Manjunath & Wilhelm (2021), Example 1" begin
+        # Recursive moments must reproduce the published moments.
+        μ = [0.5, 0.5]
+        Σ = PDMat([1.0 1.2; 1.2 2.0])
+        a_finite = [-1.0, -20.0]      # large finite surrogate for -∞
+        b        = [ 0.5,   1.0]
+        d = RecursiveMomentsBoxTruncatedMvNormal(μ, Σ, a_finite, b)
+        @test tp(d)        ≈ 0.398482903122761      atol = 1e-9
+        @test mean(d)[1]   ≈ -0.1516343              atol = 1e-6
+        @test mean(d)[2]   ≈ -0.3881151              atol = 1e-6
+        @test cov(d)[1,1]  ≈  0.1630439              atol = 1e-6
+        @test cov(d)[1,2]  ≈  0.1613371              atol = 1e-6
+        @test cov(d)[2,2]  ≈  0.6062505              atol = 1e-6
+    end
+
 end
-
-
-# test_distribution.(distribution_generators)
-
-
-# Trying on an untruncated case
-if false
-       d = MvNormal([0,0],[1.0 0; 0 1.0])
-       r = BoxTruncationRegion([-10.0, -10.0], [10.0, 10.0])
-       dtrunc = RecursiveMomentsBoxTruncatedMvNormal(d.μ, d.Σ, r.a, r.b; max_moment_levels = 4);
-       grad = μ_gradient(dtrunc, mean(dtrunc), [0.0, 0.0], PDMat([1.0 0; 0 1.0]))
-       @show grad
-end
-
-##### Trying on a simple positive truncation....
-# d, r, _ = distribution_generators[1]()
-if true
-       tnd = Truncated(Normal(),0,Inf)
-       mnd, vnd = mean(tnd), var(tnd)
-       @show mnd, vnd
-       cnd = PDMat([vnd 0.0; 0.0 vnd])
-       d = MvNormal([0,0],[1.0 0; 0 1.0])
-       r = BoxTruncationRegion([0.0, 0.0], [25.0, 25.0])
-       dtrunc = RecursiveMomentsBoxTruncatedMvNormal(d.μ, d.Σ, r.a, r.b; max_moment_levels = 4);
-       grad = μ_gradient(dtrunc, mean(dtrunc), [mnd, mnd], cnd)
-       @show grad
-end
-# U_gradient(d, d.untruncated.μ, d.utruncated.μ, d.untruncated.Σ)

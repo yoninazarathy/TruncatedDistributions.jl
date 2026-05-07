@@ -64,11 +64,13 @@ export
     correct_to_moments_with_prima,
     correct_to_moments_with_optim,
     correct_to_moments_with_pair_gradient_descent,
+    correct_to_moments_with_full_gradient,
     find_pair_with_worst_loss,
     pair_gradient_descent
 
 include("commonTypes.jl")
 include("regions.jl")
+include("hcubatureInf.jl")
 include("commonOperations.jl")
 include("commonCompute.jl")
     include("univariate/distributionsPackageExtensions.jl")

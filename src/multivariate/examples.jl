@@ -79,7 +79,31 @@ normal_examples[2] = [
                     μ̂ = [0.9734400003512856, 2.886032492774952],
                     Σ̂ = [1.0 0; 0 1.0],
                     arb_moment_to_check_index = (0, 3),
-                    arb_moment_to_check_value = 52.44849808917711)
+                    arb_moment_to_check_value = 52.44849808917711),
+    # Manjunath & Wilhelm (2021), "Moments Calculation for the Doubly Truncated Multivariate
+    # Normal Density", Example 1. The original example takes a[2] = -Inf; we use a[2] = -20
+    # (≈ μ₂ - 14.5 σ₂) as a finite surrogate. Truncated moments below match the published
+    # values to 7 significant figures.
+    NormalExample(  μ = [0.5, 0.5],
+                    Σ = [1.0 1.2;
+                         1.2 2.0],
+                    a = [-1.0, -20.0],
+                    b = [ 0.5,   1.0],
+                    tp = 0.398482903122761,
+                    μ̂ = [-0.15163426285883586, -0.3881151019108365],
+                    Σ̂ = [0.16304394651960308 0.1613370775178306;
+                         0.1613370775178306  0.6062505412608046]),
+    # Fully-bounded 2D example: all four box sides are within ~1.5σ of the mean,
+    # so each side meaningfully shapes the truncated distribution.
+    NormalExample(  μ = [0.0, 0.0],
+                    Σ = [1.0 0.3;
+                         0.3 1.0],
+                    a = [-1.0, -1.5],
+                    b = [ 1.5,  1.0],
+                    tp = 0.6046944921624118,
+                    μ̂ = [ 0.12213214335225087, -0.12213214335225087],
+                    Σ̂ = [0.4081962800466608  0.05396791660268199;
+                         0.05396791660268199 0.40819628004683206])
 ]
 normal_examples[3] = [
     NormalExample(  μ = [3.5,2,3.5],

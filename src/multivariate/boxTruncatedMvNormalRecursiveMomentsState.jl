@@ -185,5 +185,5 @@ end
 
 function LL(d::BoxTruncatedMvNormalRecursiveMomentsState)
     # @info "doing base numerical integral on dimension $(d.n)."
-    hcubature((x)->pdf(d.d,x),d.r.a,d.r.b,maxevals = 10^6)[1]
+    hcubature_inf((x)->pdf(d.d,x),d.r.a,d.r.b,maxevals = 10^6)[1]
 end
