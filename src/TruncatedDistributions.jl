@@ -46,6 +46,10 @@ export
     TruncatedMvDistributionState,
     μ_gradient,
     U_gradient,
+    grad_true_loss,
+    moment_grad_μ,
+    moment_grad_U,
+    vector_grad_true_loss,
     loss_based_fit,
     truncateDynamicFit,
     moment_loss,
@@ -86,5 +90,6 @@ include("commonCompute.jl")
     include("parameterMatching/correct_to_moments.jl")
 
 include("parameterMatching/lossMultivariateFit.jl")
+include("parameterMatching/parameter_gradients_true_loss.jl")
 
 end #module
